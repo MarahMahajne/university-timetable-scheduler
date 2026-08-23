@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת שעות</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
+</head>
+<body>
+    <main class="page">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">מערכת אוטומטית לבניית מערכת שעות</p>
+                <h1>לוח זמנים שבועי</h1>
+                <p class="subtitle">
+                    התצוגה נטענת אוטומטית מתוך הקובץ
+                    <code>timetable.json</code>
+                </p>
+            </div>
+
+            <div class="summary">
+                <div class="summary-card">
+                    <span>קורסים</span>
+                    <strong>{{ timetable|length }}</strong>
+                </div>
+                <div class="summary-card">
+                    <span>שנות לימוד</span>
+                    <strong>{{ years|length }}</strong>
+                </div>
+            </div>
+        </header>
+
+        {% if not timetable %}
+            <section class="empty-state">
+                <h2>לא נמצא קובץ מערכת שעות</h2>
+                <p>
+                    יש ליצור תחילה את הקובץ <code>timetable.json</code>
+                    באמצעות מנוע התזמון.
+                </p>
+            </section>
+        {% else %}
+            <section class="controls">
+                <label for="yearSelect">הצג מערכת עבור:</label>
+                <select id="yearSelect">
+                    {% for year in years %}
+                        <option value="{{ year }}">שנה {{ year }}</option>
+                    {% endfor %}
+                </select>
+            </section>
+
+            <section class="calendar-wrapper">
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="corner-cell">שעה</div>
+
+                    {% for day in days %}
+                        <div class="day-header">{{ day.hebrew }}</div>
+                    {% endfor %}
+
+                    {% for hour in range(8, 21) %}
+                        <div class="time-label" style="grid-row: {{ 2 + (hour - 8) * 2 }} / span 2;">
+                            {{ "%02d:00"|format(hour) }}
+                        </div>
+                    {% endfor %}
+
+                    {% for day in days %}
+                        <div class="day-column-lines" style="grid-column: {{ loop.index + 1 }};"></div>
+                    {% endfor %}
+
+                    {% for course in timetable %}
+                        {% set start_parts = course.start.split(':') %}
+                        {% set end_parts = course.end.split(':') %}
+                        {% set start_slot = ((start_parts[0]|int - 8) * 2) + (1 if start_parts[1] == '30' else 0) %}
+                        {% set end_slot = ((end_parts[0]|int - 8) * 2) + (1 if end_parts[1] == '30' else 0) %}
+                        {% set duration_slots = end_slot - start_slot %}
+
+                        {% for day in days %}
+                            {% if day.key == course.day %}
+                                <article
+                                    class="course-card year-{{ course.year }}"
+                                    data-year="{{ course.year }}"
+                                    style="
+                                        grid-column: {{ loop.index + 1 }};
+                                        grid-row: {{ start_slot + 2 }} / span {{ duration_slots }};
+                                    "
+                                >
+                                    <strong>{{ course.name }}</strong>
+                                    <span>{{ course.start }}–{{ course.end }}</span>
+                                    <span>{{ course.lecturer }}</span>
+                                    <small>שנה {{ course.year }}</small>
+                                </article>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="legend">
+                <span><i class="legend-color year-1-color"></i> שנה 1</span>
+                <span><i class="legend-color year-2-color"></i> שנה 2</span>
+                <span><i class="legend-color year-3-color"></i> שנה 3</span>
+            </section>
+        {% endif %}
+    </main>
+
+    <script>
+        const yearSelect = document.getElementById("yearSelect");
+
+        function showSelectedYear() {
+            if (!yearSelect) return;
+
+            const selectedYear = yearSelect.value;
+
+            document.querySelectorAll(".course-card").forEach((card) => {
+                card.hidden = card.dataset.year !== selectedYear;
+            });
+        }
+
+        if (yearSelect) {
+            yearSelect.addEventListener("change", showSelectedYear);
+            showSelectedYear();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+:root {
+    --background: #f4f7fb;
+    --surface: #ffffff;
+    --text: #172033;
+    --muted: #667085;
+    --border: #dbe3ef;
+    --primary: #2856a3;
+    --year-1: #dff3e4;
+    --year-1-border: #62a675;
+    --year-2: #fff1c7;
+    --year-2-border: #c99321;
+    --year-3: #dcecff;
+    --year-3-border: #4b83c3;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, "Segoe UI", sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+.page {
+    width: min(1500px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 32px 0 48px;
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 48px);
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-bottom: 0;
+}
+
+.summary {
+    display: flex;
+    gap: 12px;
+}
+
+.summary-card {
+    min-width: 120px;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.summary-card span {
+    color: var(--muted);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.summary-card strong {
+    font-size: 26px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+select {
+    min-width: 140px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    font: inherit;
+}
+
+.calendar-wrapper {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+}
+
+.calendar-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 82px repeat(5, minmax(190px, 1fr));
+    grid-template-rows: 54px repeat(24, 34px);
+    min-width: 1080px;
+    direction: ltr;
+}
+
+.corner-cell,
+.day-header,
+.time-label {
+    background: #eef3fa;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.corner-cell {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.day-header {
+    direction: rtl;
+}
+
+.time-label {
+    grid-column: 1;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.day-column-lines {
+    grid-row: 2 / 26;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 33px,
+            #e6ebf2 33px,
+            #e6ebf2 34px
+        );
+}
+
+.course-card {
+    z-index: 2;
+    margin: 3px 5px;
+    padding: 8px;
+    border-radius: 10px;
+    border-right: 5px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+    direction: rtl;
+    text-align: right;
+    box-shadow: 0 2px 5px rgba(25, 40, 65, 0.12);
+}
+
+.course-card strong {
+    font-size: 13px;
+}
+
+.course-card span,
+.course-card small {
+    font-size: 12px;
+}
+
+.year-1 {
+    background: var(--year-1);
+    border-color: var(--year-1-border);
+}
+
+.year-2 {
+    background: var(--year-2);
+    border-color: var(--year-2-border);
+}
+
+.year-3 {
+    background: var(--year-3);
+    border-color: var(--year-3-border);
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 16px;
+    color: var(--muted);
+}
+
+.legend span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.legend-color {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    border-radius: 5px;
+}
+
+.year-1-color {
+    background: var(--year-1);
+    border: 1px solid var(--year-1-border);
+}
+
+.year-2-color {
+    background: var(--year-2);
+    border: 1px solid var(--year-2-border);
+}
+
+.year-3-color {
+    background: var(--year-3);
+    border: 1px solid var(--year-3-border);
+}
+
+.empty-state {
+    padding: 48px;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+@media (max-width: 760px) {
+    .hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .summary {
+        width: 100%;
+    }
+
+    .summary-card {
+        flex: 1;
+    }
+}
+.course-card[hidden] {
+    display: none;
+}
