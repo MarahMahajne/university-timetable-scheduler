@@ -1,16 +1,19 @@
-TIMETABLE FRONTEND
+RUN THE FULL APPLICATION
+========================
 
-1. Install Flask:
-   pip install -r requirements.txt
+From the main timeTabling folder:
 
-2. Run:
-   python app.py
+    pip install -r requirements.txt
+    python timetable_frontend\app.py
 
-3. Your browser opens automatically at:
-   http://127.0.0.1:5000/
+The browser opens automatically.
 
-The page reads timetable.json automatically.
+In the page:
+1. Select the days when the department can teach.
+2. Enter the allowed start/end time for every enabled day.
+3. Click "Build timetable".
+4. The frontend saves the settings to timetable_backend/schedule_config.json.
+5. It runs timetable_backend/main.py automatically.
+6. The page reloads and displays the new timetable.
 
-To display a newly generated timetable:
-- replace timetable.json with the newest file
-- refresh the browser
+The solver also reads BOTH prerequisite and parallel-condition columns from courses.xlsx.

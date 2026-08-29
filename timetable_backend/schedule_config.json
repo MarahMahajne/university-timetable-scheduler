@@ -1,0 +1,41 @@
+{
+    "degree_years": 3,
+    "semesters_per_year": 3,
+    "days": {
+        "Sunday": {
+            "enabled": false,
+            "start": "17:00",
+            "end": "22:00"
+        },
+        "Monday": {
+            "enabled": true,
+            "start": "17:00",
+            "end": "22:00"
+        },
+        "Tuesday": {
+            "enabled": false,
+            "start": "08:00",
+            "end": "20:00"
+        },
+        "Wednesday": {
+            "enabled": false,
+            "start": "08:00",
+            "end": "20:00"
+        },
+        "Thursday": {
+            "enabled": true,
+            "start": "17:00",
+            "end": "22:00"
+        },
+        "Friday": {
+            "enabled": true,
+            "start": "08:00",
+            "end": "14:00"
+        },
+        "Saturday": {
+            "enabled": false,
+            "start": "08:00",
+            "end": "20:00"
+        }
+    }
+}

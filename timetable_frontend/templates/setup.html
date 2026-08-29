@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הגדרת ימי ושעות המחלקה</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
+</head>
+<body>
+    <main class="setup-page">
+        <section class="setup-card">
+            <div class="setup-intro">
+                <p class="eyebrow">שלב 1 מתוך 2</p>
+                <h1>הגדרת פעילות המחלקה</h1>
+                <p class="subtitle">
+                    בחרי באילו ימים המחלקה פעילה ומהו טווח השעות המותר בכל יום.
+                    רק לאחר הלחיצה על "בנה מערכת" ה־Solver ירוץ וייצר את מערכת השעות.
+                </p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="post" action="{{ url_for('generate_timetable') }}" class="setup-form">
+                <section class="degree-settings">
+                    <div class="setting-field">
+                        <label for="degree_years">מספר שנות התואר</label>
+                        <input
+                            id="degree_years"
+                            type="number"
+                            name="degree_years"
+                            min="1"
+                            max="10"
+                            value="{{ config.degree_years }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="setting-field">
+                        <label for="semesters_per_year">מספר סמסטרים בשנה</label>
+                        <input
+                            id="semesters_per_year"
+                            type="number"
+                            name="semesters_per_year"
+                            min="1"
+                            max="4"
+                            value="{{ config.semesters_per_year }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="degree-total">
+                        <span>סה"כ סמסטרים בתכנית</span>
+                        <strong id="totalSemesters">
+                            {{ config.degree_years * config.semesters_per_year }}
+                        </strong>
+                    </div>
+                </section>
+
+                <h2 class="availability-title">ימי ושעות פעילות המחלקה</h2>
+
+                <div class="availability-list">
+                    {% for day in all_days %}
+                        {% set values = config.days[day.key] %}
+                        <div class="availability-row">
+                            <label class="day-checkbox">
+                                <input
+                                    type="checkbox"
+                                    name="enabled_{{ day.key }}"
+                                    {% if values.enabled %}checked{% endif %}
+                                >
+                                <span>{{ day.hebrew }}</span>
+                            </label>
+
+                            <div class="time-field">
+                                <label for="start_{{ day.key }}">משעה</label>
+                                <input
+                                    id="start_{{ day.key }}"
+                                    type="time"
+                                    name="start_{{ day.key }}"
+                                    value="{{ values.start }}"
+                                    step="1800"
+                                >
+                            </div>
+
+                            <div class="time-field">
+                                <label for="end_{{ day.key }}">עד שעה</label>
+                                <input
+                                    id="end_{{ day.key }}"
+                                    type="time"
+                                    name="end_{{ day.key }}"
+                                    value="{{ values.end }}"
+                                    step="1800"
+                                >
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="solver-note">
+                    <strong>מה קורה לאחר הלחיצה?</strong>
+                    <span>
+                        המערכת שולחת את הימים והשעות ל־Backend, קוראת מה־Excel את
+                        קורסי הקדם ואת התנאים המקבילים, ואז מריצה את ה־Solver.
+                    </span>
+                </div>
+
+                <button class="generate-button" type="submit">
+                    בנה מערכת שעות
+                </button>
+            </form>
+        </section>
+    </main>
+    <script>
+        const yearsInput = document.getElementById("degree_years");
+        const semestersInput = document.getElementById("semesters_per_year");
+        const totalSemesters = document.getElementById("totalSemesters");
+
+        function updateTotalSemesters() {
+            const years = Number(yearsInput.value || 0);
+            const semesters = Number(semestersInput.value || 0);
+            totalSemesters.textContent = years * semesters;
+        }
+
+        yearsInput.addEventListener("input", updateTotalSemesters);
+        semestersInput.addEventListener("input", updateTotalSemesters);
+    </script>
+</body>
+</html>

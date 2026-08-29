@@ -1,0 +1,18 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.vscode/
+~$*.xlsx
+
+# Generated backend outputs
+/timetable_backend/courses.json
+/timetable_backend/courses_calculated.xlsx
+/timetable_backend/unresolved_requirements.json
+/timetable_backend/semester_plan.xlsx
+/timetable_backend/timetable.json
+/timetable_backend/timetable.xlsx
+
+# Generated visualizations
+/calendar_images/
+/timetable_backend/calendar_images/
