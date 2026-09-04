@@ -452,3 +452,1169 @@ input[type="time"], select {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* V10: all-semester overview */
+.all-semesters-view[hidden],
+.calendar-wrapper[hidden] {
+    display: none;
+}
+
+.all-semesters-view {
+    margin-top: 22px;
+}
+
+.all-semesters-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.all-semesters-heading h2 {
+    margin: 0 0 6px;
+}
+
+.all-semesters-heading p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.semester-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.semester-overview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.semester-overview-card > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.semester-overview-card h3 {
+    margin: 4px 0 0;
+}
+
+.semester-number,
+.course-count {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.course-count {
+    white-space: nowrap;
+}
+
+.semester-event-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.semester-event-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: #f7f9fc;
+}
+
+.semester-event-row > div {
+    min-width: 0;
+}
+
+.semester-event-row strong,
+.semester-event-row small {
+    display: block;
+}
+
+.semester-event-row small,
+.semester-event-row > span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.overflow-card {
+    border-style: dashed;
+}
+
+.overflow-note {
+    margin: 10px 0 0;
+    color: #8a5a00;
+    font-size: 14px;
+}
+
+@media (max-width: 900px) {
+    .semester-overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .semester-event-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+
+/* ---------- Loading state ---------- */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.48);
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.loading-overlay[hidden] {
+    display: none;
+}
+
+.loading-box {
+    width: min(420px, 92vw);
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.24);
+}
+
+.loading-box h2 {
+    margin: 14px 0 8px;
+}
+
+.loading-box p {
+    margin: 0;
+    color: #64748b;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto;
+    border: 5px solid #dbe3ef;
+    border-top-color: #2856a3;
+    border-radius: 50%;
+    animation: timetable-spin 0.8s linear infinite;
+}
+
+@keyframes timetable-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- All semesters compact overview ---------- */
+.all-semesters-view {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+.mini-semester {
+    min-width: 0;
+    background: #fff;
+    border: 1px solid #dbe3ef;
+    border-radius: 16px;
+    padding: 10px;
+}
+
+.mini-semester-header h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.mini-calendar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 42px repeat(5, minmax(0, 1fr));
+    grid-template-rows: 28px repeat(24, 15px);
+    direction: ltr;
+    overflow: hidden;
+}
+
+.mini-corner,
+.mini-day,
+.mini-time {
+    background: #eef3fa;
+    border: 1px solid #dbe3ef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.mini-corner {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.mini-day {
+    direction: rtl;
+}
+
+.mini-time {
+    grid-column: 1;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.mini-day-lines {
+    grid-row: 2 / 26;
+    border-left: 1px solid #e5eaf1;
+    border-right: 1px solid #e5eaf1;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 14px,
+            #edf1f5 14px,
+            #edf1f5 15px
+        );
+}
+
+.mini-course {
+    z-index: 3;
+    margin: 1px;
+    padding: 2px 3px;
+    border-radius: 4px;
+    overflow: hidden;
+    direction: rtl;
+    text-align: right;
+    font-size: 7px;
+    line-height: 1.15;
+    border-right: 3px solid;
+}
+
+.mini-course strong,
+.mini-course span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mini-lecture {
+    background: #dcecff;
+    border-color: #4b83c3;
+}
+
+.mini-tutorial {
+    background: #e3f3e7;
+    border-color: #62a675;
+}
+
+@media (min-width: 1500px) {
+    .all-semesters-view {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 980px) {
+    .all-semesters-view {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   V14 — All semesters as real compact weekly timetables
+   ========================================================= */
+
+.all-semesters-view {
+    display: block;
+    margin-top: 20px;
+}
+
+.all-semesters-view[hidden] {
+    display: none;
+}
+
+.all-semesters-heading {
+    margin-bottom: 14px;
+}
+
+.all-semesters-heading h2 {
+    margin: 0 0 5px;
+}
+
+.all-semesters-heading p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.all-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+.compact-semester-calendar {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+}
+
+.compact-semester-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 7px;
+    direction: rtl;
+}
+
+.compact-semester-header span,
+.compact-semester-header small {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.compact-semester-header h3 {
+    margin: 2px 0 0;
+    font-size: 14px;
+}
+
+.compact-calendar-scroll {
+    width: 100%;
+    overflow: hidden;
+}
+
+.compact-calendar-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns:
+        36px
+        repeat(var(--compact-day-count), minmax(0, 1fr));
+    grid-template-rows:
+        24px
+        repeat(var(--compact-slot-count), 14px);
+    direction: ltr;
+    width: 100%;
+    min-width: 0;
+}
+
+.compact-corner,
+.compact-day-header,
+.compact-time-label {
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef3fa;
+    border: 1px solid var(--border);
+    font-weight: 700;
+}
+
+.compact-corner {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 8px;
+}
+
+.compact-day-header {
+    grid-row: 1;
+    direction: rtl;
+    font-size: 9px;
+}
+
+.compact-time-label {
+    grid-column: 1;
+    direction: ltr;
+    color: var(--muted);
+    font-size: 7px;
+    font-weight: 600;
+}
+
+.compact-day-lines {
+    z-index: 0;
+    border-left: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 13px,
+            #edf1f5 13px,
+            #edf1f5 14px
+        );
+}
+
+.compact-course-card {
+    z-index: 3;
+    min-width: 0;
+    margin: 1px 2px;
+    padding: 2px 3px;
+    border-radius: 4px;
+    border-right: 3px solid;
+    direction: rtl;
+    text-align: right;
+    overflow: hidden;
+    font-size: 7px;
+    line-height: 1.15;
+}
+
+.compact-course-card.lecture {
+    background: var(--lecture-bg, #dcecff);
+    border-color: var(--lecture-border, #4b83c3);
+}
+
+.compact-course-card.tutorial {
+    background: var(--tutorial-bg, #e3f3e7);
+    border-color: var(--tutorial-border, #62a675);
+}
+
+.compact-course-card strong,
+.compact-course-card span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.compact-course-card strong {
+    font-size: 7px;
+}
+
+.compact-course-card span {
+    font-size: 6.5px;
+}
+
+@media (min-width: 1700px) {
+    .all-calendar-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1100px) {
+    .all-calendar-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .compact-calendar-grid {
+        grid-template-columns:
+            42px
+            repeat(var(--compact-day-count), minmax(70px, 1fr));
+    }
+
+    .compact-calendar-scroll {
+        overflow-x: auto;
+    }
+}
+
+
+/* ============================================================
+   V15 — Degree overview: years as rows, semester schedules
+   ============================================================ */
+
+.degree-overview {
+    display: grid;
+    gap: 24px;
+}
+
+.degree-year-section {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+}
+
+.degree-year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.degree-year-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.degree-year-header span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.year-semester-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(var(--semesters-this-year), minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.semester-timetable-card {
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: #fff;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.semester-timetable-card:hover,
+.semester-timetable-card:focus-visible {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.semester-timetable-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 42px;
+    margin-bottom: 6px;
+    direction: rtl;
+}
+
+.semester-timetable-header h3 {
+    margin: 1px 0 0;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.semester-number,
+.semester-timetable-header small {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.overview-calendar-frame {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.overview-calendar-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns:
+        34px
+        repeat(var(--overview-day-count), minmax(0, 1fr));
+    grid-template-rows:
+        25px
+        repeat(var(--overview-slot-count), 16px);
+    width: 100%;
+    min-width: 0;
+    direction: ltr;
+}
+
+.overview-corner,
+.overview-day-header,
+.overview-time-label {
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef3fa;
+    border: 1px solid var(--border);
+    font-weight: 700;
+}
+
+.overview-corner {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 8px;
+}
+
+.overview-day-header {
+    grid-row: 1;
+    direction: rtl;
+    font-size: 9px;
+}
+
+.overview-time-label {
+    grid-column: 1;
+    color: var(--muted);
+    font-size: 7px;
+    font-weight: 600;
+}
+
+.overview-time-label.half-hour-label {
+    border-top-color: transparent;
+}
+
+.overview-day-lines {
+    z-index: 0;
+    border-left: 1px solid #dfe6ef;
+    border-right: 1px solid #dfe6ef;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 15px,
+            #edf1f5 15px,
+            #edf1f5 16px
+        );
+}
+
+.overview-course {
+    z-index: 3;
+    min-width: 0;
+    margin: 1px 2px;
+    padding: 3px 4px;
+    border-radius: 5px;
+    border-right: 3px solid;
+    direction: rtl;
+    text-align: right;
+    overflow: hidden;
+    line-height: 1.15;
+}
+
+.overview-course.lecture {
+    background: var(--lecture-bg, #dcecff);
+    border-color: var(--lecture-border, #4b83c3);
+}
+
+.overview-course.tutorial {
+    background: var(--tutorial-bg, #e3f3e7);
+    border-color: var(--tutorial-border, #62a675);
+}
+
+.overview-course strong {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 8px;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.overview-course span {
+    display: block;
+    margin-top: 1px;
+    overflow: hidden;
+    color: #475569;
+    font-size: 7px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* With 3 semesters/year, retain readable widths on normal desktop screens. */
+@media (max-width: 1450px) {
+    .year-semester-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* On smaller screens, show one readable schedule per row instead of crushing text. */
+@media (max-width: 980px) {
+    .year-semester-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .overview-calendar-frame {
+        overflow-x: auto;
+    }
+
+    .overview-calendar-grid {
+        min-width: 720px;
+    }
+}
+
+
+/* ============================================================
+   V16 — Compressed all-semesters view
+   Breaks still exist in the solver, but empty time is not drawn
+   in the degree overview. Events remain in chronological order.
+   ============================================================ */
+
+.compressed-semester-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+    direction: rtl;
+}
+
+.compressed-day-column {
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.compressed-day-header {
+    padding: 5px 3px;
+    background: #eef3fa;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.compressed-day-events {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px;
+}
+
+.compressed-course {
+    min-width: 0;
+    padding: 5px 5px 4px;
+    border-radius: 6px;
+    border-right: 3px solid;
+    direction: rtl;
+    text-align: right;
+    overflow: hidden;
+}
+
+.compressed-course.lecture {
+    background: var(--lecture-bg, #dcecff);
+    border-color: var(--lecture-border, #4b83c3);
+}
+
+.compressed-course.tutorial {
+    background: var(--tutorial-bg, #e3f3e7);
+    border-color: var(--tutorial-border, #62a675);
+}
+
+.compressed-course strong {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 9px;
+    line-height: 1.15;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.compressed-course-time {
+    display: block;
+    margin-top: 2px;
+    font-size: 8px;
+    color: #334155;
+    direction: ltr;
+    text-align: right;
+}
+
+.compressed-course small {
+    display: block;
+    margin-top: 1px;
+    font-size: 7px;
+    color: #64748b;
+}
+
+.compressed-empty-day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+/*
+  In the all-semesters overview we intentionally do NOT reserve vertical
+  height for gaps between classes. A 30-minute or 2-hour break is still
+  respected by the generated timetable and visible in the normal semester
+  view; here we only show the scheduled events and their actual times.
+*/
+
+@media (max-width: 1200px) {
+    .compressed-semester-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .compressed-semester-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+/* ============================================================
+   V19 — truly dynamic All Semesters view
+   ============================================================ */
+
+.dynamic-degree-overview {
+    display: grid;
+    gap: 16px;
+}
+
+.dynamic-year-section {
+    padding: 10px;
+}
+
+.dynamic-year-semesters {
+    display: grid;
+    grid-template-columns: repeat(var(--semester-count), minmax(0, 1fr));
+    gap: 8px;
+    align-items: start;
+}
+
+.dynamic-semester-card {
+    min-width: 0;
+    padding: 7px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.dynamic-semester-card:hover,
+.dynamic-semester-card:focus-visible {
+    border-color: var(--primary);
+}
+
+.dynamic-semester-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.dynamic-semester-header h3 {
+    margin: 1px 0 0;
+    font-size: 12px;
+    line-height: 1.15;
+}
+
+.dynamic-semester-header span,
+.dynamic-semester-header small {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.dynamic-days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+    gap: 4px;
+    align-items: start;
+}
+
+/* Only days that actually contain classes are rendered. */
+.dynamic-day-column {
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.dynamic-day-title {
+    padding: 4px 3px;
+    background: #eef3fa;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.dynamic-events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 3px;
+}
+
+/*
+Breaks remain real in timetable.json and in the full semester view.
+The overview intentionally does not reserve empty vertical height for them.
+*/
+.dynamic-event {
+    min-width: 0;
+    padding: 4px;
+    border-radius: 5px;
+    border-right: 3px solid;
+    overflow: hidden;
+}
+
+.dynamic-event.lecture {
+    background: var(--lecture-bg, #dcecff);
+    border-color: var(--lecture-border, #4b83c3);
+}
+
+.dynamic-event.tutorial {
+    background: var(--tutorial-bg, #e3f3e7);
+    border-color: var(--tutorial-border, #62a675);
+}
+
+.dynamic-event-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.dynamic-event-top strong {
+    min-width: 0;
+    flex: 1;
+    font-size: 8px;
+    line-height: 1.1;
+}
+
+.dynamic-event-top > span {
+    flex: 0 0 auto;
+    color: #334155;
+    font-size: 7px;
+    direction: ltr;
+    white-space: nowrap;
+}
+
+.dynamic-event-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 6.5px;
+}
+
+.dynamic-event-meta span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dynamic-empty-semester {
+    padding: 14px 8px;
+    border: 1px dashed var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 10px;
+}
+
+@media (max-width: 1450px) {
+    .dynamic-year-semesters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .dynamic-year-semesters {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ============================================================
+   V20 — normal timetable readability
+   ============================================================ */
+
+.course-card {
+    position: relative;
+    gap: 2px;
+    padding: 6px 7px;
+}
+
+/* Semester is already selected in the page header, so don't waste
+   precious card height repeating the semester name inside every block. */
+.course-name {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 12px !important;
+    line-height: 1.1;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.course-compact-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 10px;
+    line-height: 1.05;
+}
+
+.course-compact-meta span {
+    font-size: 10px !important;
+}
+
+.course-time {
+    direction: ltr;
+    white-space: nowrap;
+}
+
+.lecturer-name {
+    display: block;
+    overflow: hidden;
+    font-size: 10px !important;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Very short events still show course + lecturer in a compact form. */
+.course-card[data-grid-span="1"] {
+    padding: 3px 5px;
+}
+
+.course-card[data-grid-span="1"] .course-name {
+    font-size: 9px !important;
+    -webkit-line-clamp: 1;
+}
+
+.course-card[data-grid-span="1"] .course-compact-meta {
+    display: none;
+}
+
+.course-card[data-grid-span="1"] .lecturer-name {
+    font-size: 8px !important;
+}
+
+.course-card[data-grid-span="2"] .course-name {
+    font-size: 10px !important;
+    -webkit-line-clamp: 1;
+}
+
+.course-card[data-grid-span="2"] .course-compact-meta span,
+.course-card[data-grid-span="2"] .lecturer-name {
+    font-size: 8px !important;
+}
+
+/* Hover/focus gives the full information even when the scheduled block
+   itself is only 30 minutes tall. */
+.course-hover-details {
+    display: none;
+}
+
+.course-card:hover,
+.course-card:focus-within {
+    z-index: 50;
+    overflow: visible;
+}
+
+.course-card:hover .course-hover-details {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 230px;
+    padding: 9px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #ffffff;
+    color: var(--text);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.20);
+    direction: rtl;
+    text-align: right;
+}
+
+.course-card:hover .course-hover-details strong {
+    font-size: 12px;
+}
+
+.course-card:hover .course-hover-details span,
+.course-card:hover .course-hover-details small {
+    font-size: 10px;
+    line-height: 1.25;
+}
+
+
+/* ============================================================
+   V22 — 15-minute timetable resolution
+   ============================================================ */
+
+.calendar-grid {
+    grid-template-rows: 54px repeat(var(--slot-count), 17px);
+}
+
+.time-label {
+    font-size: 10px;
+}
+
+/* Draw a stronger horizontal guide every 30 minutes while the model itself
+   can schedule on :00 / :15 / :30 / :45 boundaries. */
+.day-column-lines {
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 33px,
+        #e6ebf2 33px,
+        #e6ebf2 34px
+    );
+}
+
+/* A 15-minute event is tiny, so keep it legible and rely on hover for detail. */
+.course-card[data-grid-span="1"] {
+    min-height: 15px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+
+/* ============================================================
+   V23 — precise 15-minute visual alignment
+   ============================================================ */
+
+/*
+The solver works in 15-minute rows, but the left axis is labelled every
+30 minutes. Each visible time label spans exactly two 15-minute rows.
+This makes a 16:00–17:00 class visually cover four rows and end exactly
+on the 17:00 boundary.
+*/
+.time-label {
+    align-items: flex-start;
+    padding-top: 3px;
+    box-sizing: border-box;
+}
+
+/* Show a faint 15-minute line and a stronger 30-minute line. */
+.day-column-lines {
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 16px,
+            rgba(219, 227, 239, 0.45) 16px,
+            rgba(219, 227, 239, 0.45) 17px
+        ),
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 33px,
+            #d8e1ed 33px,
+            #d8e1ed 34px
+        );
+}
+
+/*
+Keep cards almost flush with their true start/end boundaries.
+The old 3px vertical margin made a one-hour card look shorter than its
+actual duration.
+*/
+.course-card {
+    margin: 1px 5px;
+    box-sizing: border-box;
+}
+
+/* Make short cards use the entire available height. */
+.course-card[data-grid-span="1"],
+.course-card[data-grid-span="2"],
+.course-card[data-grid-span="3"],
+.course-card[data-grid-span="4"] {
+    margin-top: 1px;
+    margin-bottom: 1px;
+}

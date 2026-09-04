@@ -110,8 +110,8 @@ def validate_form_config(config: dict) -> None:
                 f'ביום {day["hebrew"]} שעת ההתחלה חייבת להיות לפני שעת הסיום.'
             )
 
-        if start % 30 != 0 or end % 30 != 0:
-            raise ValueError("השעות חייבות להיות בקפיצות של 30 דקות.")
+        if start % 15 != 0 or end % 15 != 0:
+            raise ValueError("השעות חייבות להיות בקפיצות של 15 דקות.")
 
     if enabled_count == 0:
         raise ValueError("יש לבחור לפחות יום לימודים אחד.")
@@ -203,7 +203,7 @@ def enrich_for_calendar(
     minute = display_start
     while minute < display_end:
         slot_labels.append(f"{minute // 60:02d}:{minute % 60:02d}")
-        minute += 30
+        minute += 15
 
     day_columns = {key: index + 2 for index, key in enumerate(active_keys)}
 
@@ -214,8 +214,8 @@ def enrich_for_calendar(
             start = time_to_minutes(item["start"])
             end = time_to_minutes(item["end"])
             copied["grid_column"] = day_columns[item["day"]]
-            copied["grid_row"] = ((start - display_start) // 30) + 2
-            copied["grid_span"] = max(1, (end - start) // 30)
+            copied["grid_row"] = ((start - display_start) // 15) + 2
+            copied["grid_span"] = max(1, (end - start) // 15)
         enriched.append(copied)
 
     return enriched, slot_labels
@@ -241,8 +241,9 @@ def generate_timetable():
         success, details = run_backend()
         if not success:
             flash(
-                "לא הצלחנו ליצור מערכת עם הימים והשעות שנבחרו. "
-                "נסי להוסיף יום או להרחיב את שעות הפעילות.\n\n" + details,
+                "לא הצלחנו ליצור מערכת שעומדת בכל האילוצים הקשיחים. "
+                "יש לבדוק את מספר הסמסטרים, קורסי הקדם/המקבילה, "
+                "הימים ושעות הפעילות.\n\n" + details,
                 "error",
             )
             return redirect(url_for("setup_page"))
@@ -263,18 +264,88 @@ def calendar_page():
     active_days = active_days_from_config(config)
     timetable, slot_labels = enrich_for_calendar(timetable, config)
 
-    semesters = sorted(
-        {
-            (
-                int(item["semester"]),
-                item.get("semester_name", f'סמסטר {item["semester"]}'),
-            )
-            for item in timetable
-        },
-        key=lambda value: value[0],
-    )
+    semesters_per_year = int(config.get("semesters_per_year", 2))
+    degree_years = int(config.get("degree_years", 3))
+    total_configured_semesters = degree_years * semesters_per_year
+
+    # HARD degree structure:
+    # always display exactly the semesters chosen by the user, even if a
+    # solver/data error ever produced an empty semester.
+    semesters = []
+
+    for semester_number in range(1, total_configured_semesters + 1):
+        academic_year = (
+            (semester_number - 1) // semesters_per_year
+        ) + 1
+        semester_in_year = (
+            (semester_number - 1) % semesters_per_year
+        ) + 1
+
+        semesters.append((
+            semester_number,
+            f"שנה {academic_year} - סמסטר {semester_in_year}",
+        ))
 
     unique_courses = len({item["course_id"] for item in timetable})
+
+    # Data for the "all semesters" overview.
+    # The degree overview is organized by YEAR.  Inside every year we show
+    # one compact weekly timetable for each semester, preserving the same
+    # day/time layout as the normal single-semester view.
+    semester_groups = []
+
+    for semester_number, semester_name in semesters:
+        semester_events = [
+            item
+            for item in timetable
+            if int(item["semester"]) == semester_number
+        ]
+
+        academic_year = (
+            (semester_number - 1) // semesters_per_year
+        ) + 1
+        semester_in_year = (
+            (semester_number - 1) % semesters_per_year
+        ) + 1
+
+        semester_groups.append({
+            "number": semester_number,
+            "name": semester_name,
+            "year": academic_year,
+            "semester_in_year": semester_in_year,
+            "status": (
+                "OVERFLOW"
+                if any(
+                    event.get("semester_status") == "OVERFLOW"
+                    for event in semester_events
+                )
+                else "ON_PLAN"
+            ),
+            "events": semester_events,
+            "course_count": len({
+                event["course_id"] for event in semester_events
+            }),
+        })
+
+    year_groups = []
+
+    maximum_year = max(
+        [degree_years]
+        + [group["year"] for group in semester_groups]
+    )
+
+    for academic_year in range(1, maximum_year + 1):
+        year_semesters = [
+            group
+            for group in semester_groups
+            if group["year"] == academic_year
+        ]
+
+        if year_semesters:
+            year_groups.append({
+                "year": academic_year,
+                "semesters": year_semesters,
+            })
 
     return render_template(
         "calendar.html",
@@ -284,6 +355,9 @@ def calendar_page():
         semesters=semesters,
         unique_courses=unique_courses,
         slot_labels=slot_labels,
+        semester_groups=semester_groups,
+        year_groups=year_groups,
+        semesters_per_year=semesters_per_year,
     )
 
 

@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
 </head>
 <body>
+    <div id="loadingOverlay" class="loading-overlay" hidden>
+        <div class="loading-box">
+            <div class="spinner" aria-hidden="true"></div>
+            <h2>בונה מערכת שעות...</h2>
+            <p>ה־Solver בודק אילוצים ומחפש מערכת מתאימה. זה יכול לקחת כמה שניות.</p>
+        </div>
+    </div>
     <main class="page">
         <header class="hero">
             <div>
@@ -58,6 +65,7 @@
             <section class="controls">
                 <label for="semesterSelect">הצג מערכת עבור:</label>
                 <select id="semesterSelect">
+                    <option value="all">כל הסמסטרים</option>
                     {% for semester, name in semesters %}
                         <option value="{{ semester }}">{{ name }}</option>
                     {% endfor %}
@@ -65,7 +73,7 @@
                 <span id="semesterStatus" class="status"></span>
             </section>
 
-            <section class="calendar-wrapper">
+            <section class="calendar-wrapper" id="singleSemesterView">
                 <div
                     class="calendar-grid"
                     id="calendarGrid"
@@ -81,9 +89,15 @@
                     {% endfor %}
 
                     {% for label in slot_labels %}
-                        <div class="time-label" style="grid-row: {{ loop.index + 1 }};">
-                            {{ label }}
-                        </div>
+                        {% set minute = label.split(':')[1]|int %}
+                        {% if minute in [0, 30] %}
+                            <div
+                                class="time-label"
+                                style="grid-row: {{ loop.index + 1 }} / span 2;"
+                            >
+                                {{ label }}
+                            </div>
+                        {% endif %}
                     {% endfor %}
 
                     {% for day in days %}
@@ -99,16 +113,31 @@
                                 class="course-card {{ 'tutorial' if event.event_type == 'Tutorial' else 'lecture' }}"
                                 data-semester="{{ event.semester }}"
                                 data-semester-status="{{ event.semester_status }}"
+                                data-grid-span="{{ event.grid_span }}"
                                 style="grid-column: {{ event.grid_column }}; grid-row: {{ event.grid_row }} / span {{ event.grid_span }};"
-                                title="קדם: {{ event.prerequisites or 'אין' }} | מקביל: {{ event.parallel_requirement or 'אין' }}"
+                                title="{{ event.name }} | {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }} | קדם: {{ event.prerequisites or 'אין' }} | מקביל: {{ event.parallel_requirement or 'אין' }}"
                             >
-                                <strong>{{ event.name }}</strong>
-                                <span class="event-type">
-                                    {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }}
-                                </span>
-                                <span>{{ event.start }}–{{ event.end }}</span>
-                                <span>{{ event.lecturer }}</span>
-                                <small>{{ event.semester_name }}</small>
+                                <strong class="course-name">{{ event.name }}</strong>
+
+                                <div class="course-compact-meta">
+                                    <span class="event-type">
+                                        {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }}
+                                    </span>
+                                    <span class="course-time">{{ event.start }}–{{ event.end }}</span>
+                                </div>
+
+                                <span class="lecturer-name">{{ event.lecturer }}</span>
+
+                                <div class="course-hover-details">
+                                    <strong>{{ event.name }}</strong>
+                                    <span>
+                                        {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }}
+                                        · {{ event.start }}–{{ event.end }}
+                                    </span>
+                                    <span>{{ event.lecturer }}</span>
+                                    <small>קדם: {{ event.prerequisites or 'אין' }}</small>
+                                    <small>מקביל: {{ event.parallel_requirement or 'אין' }}</small>
+                                </div>
                             </article>
                         {% endif %}
                     {% endfor %}
@@ -119,40 +148,173 @@
                 <span><i class="legend-color lecture-color"></i> הרצאה</span>
                 <span><i class="legend-color tutorial-color"></i> תרגול</span>
             </section>
-        {% endif %}
+
+            <section class="all-semesters-view" id="allSemestersView" hidden>
+                <div class="all-semesters-heading">
+                    <div>
+                        <h2>מבט על כל התואר</h2>
+                        <p>
+                            תצוגה קומפקטית: ימים ללא שיעורים אינם תופסים מקום,
+                            והפסקות נשמרות במערכת אך אינן מוצגות כשטח ריק.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="degree-overview dynamic-degree-overview">
+                    {% for year_group in year_groups %}
+                        <section class="degree-year-section dynamic-year-section">
+                            <header class="degree-year-header">
+                                <div>
+                                    <h2>שנה {{ year_group.year }}</h2>
+                                    <span>{{ year_group.semesters|length }} סמסטרים</span>
+                                </div>
+                            </header>
+
+                            <div
+                                class="dynamic-year-semesters"
+                                style="--semester-count: {{ year_group.semesters|length }};"
+                            >
+                                {% for group in year_group.semesters %}
+                                    <article
+                                        class="dynamic-semester-card"
+                                        data-open-semester="{{ group.number }}"
+                                        role="button"
+                                        tabindex="0"
+                                        title="לחצי לפתיחת {{ group.name }} בתצוגה מלאה"
+                                    >
+                                        <header class="dynamic-semester-header">
+                                            <div>
+                                                <span>סמסטר {{ group.semester_in_year }}</span>
+                                                <h3>{{ group.name }}</h3>
+                                            </div>
+                                            <small>{{ group.course_count }} קורסים</small>
+                                        </header>
+
+                                        {% if group.events %}
+                                            <div class="dynamic-days-grid">
+                                                {% for day in days %}
+                                                    {% set day_events = group.events
+                                                        | selectattr("day", "equalto", day.key)
+                                                        | list
+                                                        | sort(attribute="start")
+                                                    %}
+
+                                                    {% if day_events %}
+                                                        <section class="dynamic-day-column">
+                                                            <header class="dynamic-day-title">
+                                                                {{ day.hebrew }}
+                                                            </header>
+
+                                                            <div class="dynamic-events-list">
+                                                                {% for event in day_events %}
+                                                                    <article
+                                                                        class="dynamic-event {{ 'tutorial' if event.event_type == 'Tutorial' else 'lecture' }}"
+                                                                        title="{{ event.name }} | {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }}"
+                                                                    >
+                                                                        <div class="dynamic-event-top">
+                                                                            <strong>{{ event.name }}</strong>
+                                                                            <span>{{ event.start }}–{{ event.end }}</span>
+                                                                        </div>
+
+                                                                        <div class="dynamic-event-meta">
+                                                                            <span>
+                                                                                {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }}
+                                                                            </span>
+                                                                            <span>{{ event.lecturer }}</span>
+                                                                        </div>
+                                                                    </article>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </section>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <div class="dynamic-empty-semester">
+                                                אין קורסים בסמסטר זה
+                                            </div>
+                                        {% endif %}
+                                    </article>
+                                {% endfor %}
+                            </div>
+                        </section>
+                    {% endfor %}
+                </div>
+            </section>
+
+{% endif %}
     </main>
+
+    
 
     <script>
         const semesterSelect = document.getElementById("semesterSelect");
-        const semesterStatus = document.getElementById("semesterStatus");
+        const singleSemesterView = document.getElementById("singleSemesterView");
+        const allSemestersView = document.getElementById("allSemestersView");
+        const loadingOverlay = document.getElementById("loadingOverlay");
 
-        function showSelectedSemester() {
+        function updateSemesterView() {
             if (!semesterSelect) return;
 
             const selected = semesterSelect.value;
-            let hasOverflow = false;
+            const showAll = selected === "all";
+
+            if (singleSemesterView) singleSemesterView.hidden = showAll;
+            if (allSemestersView) allSemestersView.hidden = !showAll;
 
             document.querySelectorAll(".course-card").forEach((card) => {
-                const visible = card.dataset.semester === selected;
-                card.hidden = !visible;
-
-                if (visible && card.dataset.semesterStatus === "OVERFLOW") {
-                    hasOverflow = true;
+                if (showAll) {
+                    card.hidden = true;
+                } else {
+                    card.hidden = card.dataset.semester !== selected;
                 }
             });
-
-            if (semesterStatus) {
-                semesterStatus.textContent = hasOverflow
-                    ? "חריגה: הסמסטר נוצר כדי לשמור על דרישות הקדם"
-                    : "";
-                semesterStatus.classList.toggle("warning", hasOverflow);
-            }
         }
 
         if (semesterSelect) {
-            semesterSelect.addEventListener("change", showSelectedSemester);
-            showSelectedSemester();
+            semesterSelect.addEventListener("change", updateSemesterView);
+            updateSemesterView();
         }
+
+        function openSemester(number) {
+            if (!semesterSelect) return;
+
+            semesterSelect.value = String(number);
+            updateSemesterView();
+
+            const controls = document.querySelector(".controls");
+            if (controls) {
+                controls.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
+            }
+        }
+
+        document.querySelectorAll("[data-open-semester]").forEach((card) => {
+            card.addEventListener("click", () => {
+                openSemester(card.dataset.openSemester);
+            });
+
+            card.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openSemester(card.dataset.openSemester);
+                }
+            });
+        });
+
+        // Show loading state whenever the user asks to regenerate the timetable.
+        document.querySelectorAll('form[action*="generate"], form.generate-form').forEach((form) => {
+            form.addEventListener("submit", () => {
+                if (loadingOverlay) loadingOverlay.hidden = false;
+            });
+        });
+
+        window.addEventListener("pageshow", () => {
+            if (loadingOverlay) loadingOverlay.hidden = true;
+        });
     </script>
+
 </body>
 </html>

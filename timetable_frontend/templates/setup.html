@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
 </head>
 <body>
+    <div id="loadingOverlay" class="loading-overlay" hidden>
+        <div class="loading-box">
+            <div class="spinner" aria-hidden="true"></div>
+            <h2>בונה מערכת שעות...</h2>
+            <p>ה־Solver בודק את כל האילוצים ומחפש מערכת מתאימה.</p>
+        </div>
+    </div>
     <main class="setup-page">
         <section class="setup-card">
             <div class="setup-intro">
@@ -24,7 +31,7 @@
                 {% endfor %}
             {% endwith %}
 
-            <form method="post" action="{{ url_for('generate_timetable') }}" class="setup-form">
+            <form method="post" action="{{ url_for('generate_timetable') }}" class="setup-form generate-form">
                 <section class="degree-settings">
                     <div class="setting-field">
                         <label for="degree_years">מספר שנות התואר</label>
@@ -82,7 +89,7 @@
                                     type="time"
                                     name="start_{{ day.key }}"
                                     value="{{ values.start }}"
-                                    step="1800"
+                                    step="900"
                                 >
                             </div>
 
@@ -93,7 +100,7 @@
                                     type="time"
                                     name="end_{{ day.key }}"
                                     value="{{ values.end }}"
-                                    step="1800"
+                                    step="900"
                                 >
                             </div>
                         </div>
@@ -127,6 +134,20 @@
 
         yearsInput.addEventListener("input", updateTotalSemesters);
         semestersInput.addEventListener("input", updateTotalSemesters);
+    </script>
+    <script>
+        const buildForm = document.querySelector(".generate-form");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+
+        if (buildForm) {
+            buildForm.addEventListener("submit", () => {
+                if (loadingOverlay) loadingOverlay.hidden = false;
+            });
+        }
+
+        window.addEventListener("pageshow", () => {
+            if (loadingOverlay) loadingOverlay.hidden = true;
+        });
     </script>
 </body>
 </html>
