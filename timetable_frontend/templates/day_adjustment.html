@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ text_direction }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Day & Hour Adjustment' if current_lang == 'en' else 'התאמת ימים ושעות' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
+</head>
+<body>
+<main class="setup-page day-adjustment-page">
+    <section class="setup-card day-adjustment-card">
+        <div class="setup-nav-row">
+            <a class="back-link" href="{{ url_for('setup_page') }}">← {{ 'Back to dashboard' if current_lang == 'en' else 'חזרה ללוח הניהול' }}</a>
+            <div class="lang-switcher">
+                {% for code, label in languages.items() %}<a href="{{ url_for('set_language', lang_code=code) }}" class="{{ 'active' if current_lang == code else '' }}">{{ label }}</a>{% endfor %}
+            </div>
+        </div>
+        <div class="setup-intro">
+            <p class="eyebrow">{{ 'Schedule configuration' if current_lang == 'en' else 'הגדרת מערכת' }}</p>
+            <h1>{{ 'Adjust teaching days & hours' if current_lang == 'en' else 'התאמת ימי ושעות לימוד' }}</h1>
+            <p class="subtitle">{{ 'These are department-wide availability settings. The main dashboard stays focused on constraints and course data.' if current_lang == 'en' else 'אלו הגדרות זמינות כלל-מחלקתיות. לוח הניהול הראשי נשאר ממוקד באילוצים ובנתוני הקורסים.' }}</p>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+        <form method="post" action="{{ url_for('save_day_adjustments') }}" class="setup-form">
+            <section class="degree-settings">
+                <div class="setting-field"><label for="degree_years">{{ 'Number of years in degree' if current_lang == 'en' else 'מספר שנות לימוד בתואר' }}</label><input id="degree_years" type="number" name="degree_years" min="1" max="10" value="{{ config.degree_years }}" required></div>
+                <div class="setting-field"><label for="semesters_per_year">{{ 'Semesters per year' if current_lang == 'en' else 'מספר סמסטרים בשנה' }}</label><input id="semesters_per_year" type="number" name="semesters_per_year" min="1" max="4" value="{{ config.semesters_per_year }}" required></div>
+                <div class="degree-total"><span>{{ 'Total semesters' if current_lang == 'en' else 'סה״כ סמסטרים' }}</span><strong id="totalSemesters">{{ config.degree_years * config.semesters_per_year }}</strong></div>
+            </section>
+            <h2 class="availability-title">{{ 'Department active days and hours' if current_lang == 'en' else 'ימי ושעות הפעילות של המחלקה' }}</h2>
+            <div class="availability-list">
+                {% for day in all_days %}{% set values = config.days[day.key] %}
+                <div class="availability-row">
+                    <label class="day-checkbox"><input type="checkbox" name="enabled_{{ day.key }}" {% if values.enabled %}checked{% endif %}><span>{{ day_label(day.key) }}</span></label>
+                    <div class="time-field"><label for="start_{{ day.key }}">{{ 'From' if current_lang == 'en' else 'מ-' }}</label><input id="start_{{ day.key }}" type="time" name="start_{{ day.key }}" value="{{ values.start }}" step="900"></div>
+                    <div class="time-field"><label for="end_{{ day.key }}">{{ 'To' if current_lang == 'en' else 'עד' }}</label><input id="end_{{ day.key }}" type="time" name="end_{{ day.key }}" value="{{ values.end }}" step="900"></div>
+                </div>{% endfor %}
+            </div>
+            <div class="day-page-actions"><a class="secondary-button" href="{{ url_for('setup_page') }}">{{ 'Cancel' if current_lang == 'en' else 'ביטול' }}</a><button class="primary-button" type="submit">{{ 'Save adjustments' if current_lang == 'en' else 'שמור התאמות' }}</button></div>
+        </form>
+    </section>
+</main>
+<script>
+const yearsInput=document.getElementById('degree_years'), semestersInput=document.getElementById('semesters_per_year'), total=document.getElementById('totalSemesters');
+function updateTotal(){total.textContent=Number(yearsInput.value||0)*Number(semestersInput.value||0)} yearsInput.addEventListener('input',updateTotal); semestersInput.addEventListener('input',updateTotal);
+</script>
+</body>
+</html>

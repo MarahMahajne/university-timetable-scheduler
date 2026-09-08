@@ -1,0 +1,263 @@
+# Hebrew translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-07 23:28+0000\n"
+"PO-Revision-Date: 2026-09-07 23:28+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: he <LL@li.org>\n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app.py:154
+msgid "The number of years in the degree must be between 1 and 10."
+msgstr "מספר שנות התואר חייב להיות בין 1 ל־10."
+
+#: app.py:157
+msgid "The number of semesters per year must be between 1 and 4."
+msgstr "מספר הסמסטרים בשנה חייב להיות בין 1 ל־4."
+
+#: app.py:174
+#, python-format
+msgid "On %(day)s the start time must be before the end time."
+msgstr "ביום %(day)s שעת ההתחלה חייבת להיות לפני שעת הסיום."
+
+#: app.py:180
+msgid "Hours must be in 15-minute increments."
+msgstr "השעות חייבות להיות בקפיצות של 15 דקות."
+
+#: app.py:183
+msgid "You must select at least one teaching day."
+msgstr "יש לבחור לפחות יום לימודים אחד."
+
+#: app.py:230
+msgid "The solver exceeded the 3-minute time limit."
+msgstr "ה־Solver עבר את מגבלת הזמן של 3 דקות."
+
+#: app.py:234
+msgid "Unknown error."
+msgstr "שגיאה לא ידועה."
+
+#: app.py:249
+#, python-format
+msgid "Year %(year)s - Semester %(semester)s"
+msgstr "שנה %(year)s - סמסטר %(semester)s"
+
+#: app.py:273 templates/calendar.html:156
+msgid "Tutorial"
+msgstr "תרגול"
+
+#: app.py:273 templates/calendar.html:155
+msgid "Lecture"
+msgstr "הרצאה"
+
+#: app.py:343
+msgid ""
+"We couldn't build a timetable that satisfies all the hard constraints. "
+"Please check the number of semesters, the prerequisite/parallel courses, and"
+" the active days and hours."
+msgstr ""
+"לא הצלחנו ליצור מערכת שעומדת בכל האילוצים הקשיחים. יש לבדוק את מספר "
+"הסמסטרים, קורסי הקדם/המקבילה, הימים ושעות הפעילות."
+
+#: app.py:352
+msgid "The timetable was built successfully by the solver."
+msgstr "המערכת נבנתה בהצלחה על ידי ה־Solver."
+
+#: templates/calendar.html:6
+msgid "Timetable"
+msgstr "מערכת שעות"
+
+#: templates/calendar.html:13 templates/setup.html:13
+msgid "Building the timetable..."
+msgstr "בונה מערכת שעות..."
+
+#: templates/calendar.html:14
+msgid ""
+"The solver is checking constraints and searching for a suitable timetable. "
+"This can take a few seconds."
+msgstr "ה־Solver בודק אילוצים ומחפש מערכת מתאימה. זה יכול לקחת כמה שניות."
+
+#: templates/calendar.html:27
+msgid "Step 2 of 2"
+msgstr "שלב 2 מתוך 2"
+
+#: templates/calendar.html:28
+msgid "Generated Timetable"
+msgstr "מערכת השעות שנוצרה"
+
+#: templates/calendar.html:30
+msgid ""
+"This is the result the solver generated based on the configured days and "
+"hours."
+msgstr "זו התוצאה שה־Solver יצר לפי הימים והשעות שהוגדרו."
+
+#: templates/calendar.html:36
+msgid "Change Days and Hours"
+msgstr "שנה ימים ושעות"
+
+#: templates/calendar.html:40
+msgid "Courses"
+msgstr "קורסים"
+
+#: templates/calendar.html:44
+msgid "Semesters"
+msgstr "סמסטרים"
+
+#: templates/calendar.html:58
+msgid "Department settings:"
+msgstr "הגדרות המחלקה:"
+
+#: templates/calendar.html:68
+msgid "No timetable has been generated yet"
+msgstr "עדיין לא נוצרה מערכת שעות"
+
+#: templates/calendar.html:69
+msgid "Configure days and hours"
+msgstr "הגדר ימים ושעות"
+
+#: templates/calendar.html:73
+msgid "Show timetable for:"
+msgstr "הצג מערכת עבור:"
+
+#: templates/calendar.html:75
+msgid "All semesters"
+msgstr "כל הסמסטרים"
+
+#: templates/calendar.html:89
+msgid "Time"
+msgstr "שעה"
+
+#: templates/calendar.html:125 templates/calendar.html:145
+msgid "Prerequisite"
+msgstr "קדם"
+
+#: templates/calendar.html:125 templates/calendar.html:145
+#: templates/calendar.html:146
+msgid "None"
+msgstr "אין"
+
+#: templates/calendar.html:125 templates/calendar.html:146
+msgid "Parallel requirement"
+msgstr "מקביל"
+
+#: templates/calendar.html:162
+msgid "Overview of the entire degree"
+msgstr "מבט על כל התואר"
+
+#: templates/calendar.html:164
+msgid ""
+"Compact view: days without classes take up no space, and breaks are "
+"preserved in the schedule but are not shown as empty space."
+msgstr ""
+"תצוגה קומפקטית: ימים ללא שיעורים אינם תופסים מקום, והפסקות נשמרות במערכת אך "
+"אינן מוצגות כשטח ריק."
+
+#: templates/calendar.html:174
+#, python-format
+msgid "Year %(num)s"
+msgstr "שנה %(num)s"
+
+#: templates/calendar.html:175
+#, python-format
+msgid "%(count)s semesters"
+msgstr "%(count)s סמסטרים"
+
+#: templates/calendar.html:189
+#, python-format
+msgid "Click to open %(name)s in full view"
+msgstr "לחצי לפתיחת %(name)s בתצוגה מלאה"
+
+#: templates/calendar.html:193
+#, python-format
+msgid "Semester %(num)s"
+msgstr "סמסטר %(num)s"
+
+#: templates/calendar.html:196
+#, python-format
+msgid "%(count)s courses"
+msgstr "%(count)s קורסים"
+
+#: templates/calendar.html:240
+msgid "No courses in this semester"
+msgstr "אין קורסים בסמסטר זה"
+
+#: templates/setup.html:6
+msgid "Configure Department Days and Hours"
+msgstr "הגדרת ימי ושעות המחלקה"
+
+#: templates/setup.html:14
+msgid ""
+"The solver is checking all constraints and searching for a suitable "
+"timetable."
+msgstr "ה־Solver בודק את כל האילוצים ומחפש מערכת מתאימה."
+
+#: templates/setup.html:27
+msgid "Step 1 of 2"
+msgstr "שלב 1 מתוך 2"
+
+#: templates/setup.html:28
+msgid "Configure Department Schedule"
+msgstr "הגדרת פעילות המחלקה"
+
+#: templates/setup.html:30
+msgid ""
+"Choose which days the department is active and the allowed hour range for "
+"each day."
+msgstr "בחרי באילו ימים המחלקה פעילה ומהו טווח השעות המותר בכל יום."
+
+#: templates/setup.html:31
+msgid ""
+"Only after clicking \"Build Timetable\" will the solver run and generate the"
+" timetable."
+msgstr "רק לאחר הלחיצה על \"בנה מערכת\" ה־Solver ירוץ וייצר את מערכת השעות."
+
+#: templates/setup.html:44
+msgid "Number of years in the degree"
+msgstr "מספר שנות התואר"
+
+#: templates/setup.html:57
+msgid "Number of semesters per year"
+msgstr "מספר סמסטרים בשנה"
+
+#: templates/setup.html:70
+msgid "Total semesters in the program"
+msgstr "סה\"כ סמסטרים בתכנית"
+
+#: templates/setup.html:77
+msgid "Department active days and hours"
+msgstr "ימי ושעות פעילות המחלקה"
+
+#: templates/setup.html:93
+msgid "From"
+msgstr "משעה"
+
+#: templates/setup.html:104
+msgid "To"
+msgstr "עד שעה"
+
+#: templates/setup.html:118
+msgid "What happens after clicking?"
+msgstr "מה קורה לאחר הלחיצה?"
+
+#: templates/setup.html:120
+msgid ""
+"The system sends the days and hours to the backend, reads the prerequisite "
+"and parallel requirement courses from the Excel file, and then runs the "
+"solver."
+msgstr ""
+"המערכת שולחת את הימים והשעות ל־Backend, קוראת מה־Excel את קורסי הקדם ואת "
+"התנאים המקבילים, ואז מריצה את ה־Solver."
+
+#: templates/setup.html:125
+msgid "Build Timetable"
+msgstr "בנה מערכת שעות"

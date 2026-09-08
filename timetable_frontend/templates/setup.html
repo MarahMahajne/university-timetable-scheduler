@@ -1,153 +1,290 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="{{ current_lang }}" dir="{{ text_direction }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>הגדרת ימי ושעות המחלקה</title>
+    <title>{{ 'Department Scheduling Dashboard' if current_lang == 'en' else 'לוח ניהול מערכת השעות' }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
 </head>
 <body>
-    <div id="loadingOverlay" class="loading-overlay" hidden>
-        <div class="loading-box">
-            <div class="spinner" aria-hidden="true"></div>
-            <h2>בונה מערכת שעות...</h2>
-            <p>ה־Solver בודק את כל האילוצים ומחפש מערכת מתאימה.</p>
-        </div>
+<div id="loadingOverlay" class="loading-overlay" hidden>
+    <div class="loading-box">
+        <div class="spinner" aria-hidden="true"></div>
+        <h2>{{ 'Updating timetable...' if current_lang == 'en' else 'מעדכנים את מערכת השעות...' }}</h2>
+        <p>{{ 'Claude and the solver are processing the request.' if current_lang == 'en' else 'Claude והפותר מעבדים את הבקשה.' }}</p>
     </div>
-    <main class="setup-page">
-        <section class="setup-card">
-            <div class="setup-intro">
-                <p class="eyebrow">שלב 1 מתוך 2</p>
-                <h1>הגדרת פעילות המחלקה</h1>
-                <p class="subtitle">
-                    בחרי באילו ימים המחלקה פעילה ומהו טווח השעות המותר בכל יום.
-                    רק לאחר הלחיצה על "בנה מערכת" ה־Solver ירוץ וייצר את מערכת השעות.
-                </p>
+</div>
+
+<main class="dashboard-page">
+    <header class="dashboard-topbar">
+        <div>
+            <span class="dashboard-kicker">{{ 'University Timetable Scheduler' if current_lang == 'en' else 'מערכת לבניית מערכת שעות אוניברסיטאית' }}</span>
+            <h1>{{ 'Department Scheduling Dashboard' if current_lang == 'en' else 'לוח ניהול מערכת השעות' }}</h1>
+            <p>{{ 'Manage scheduling requests, constraints and course data from one place.' if current_lang == 'en' else 'ניהול בקשות שיבוץ, אילוצים ונתוני קורסים במקום אחד.' }}</p>
+        </div>
+        <div class="dashboard-top-actions">
+            <div class="lang-switcher dashboard-langs">
+                {% for code, label in languages.items() %}
+                    <a href="{{ url_for('set_language', lang_code=code) }}" class="{{ 'active' if current_lang == code else '' }}">{{ label }}</a>
+                {% endfor %}
+            </div>
+            <a class="secondary-button" href="{{ url_for('calendar_page') }}">{{ 'View Timetable' if current_lang == 'en' else 'צפייה במערכת' }}</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="dashboard-hero-grid">
+        <section class="ai-assistant-panel dashboard-ai" id="ai-assistant">
+            <div class="ai-assistant-header">
+                <div>
+                    <span class="ai-badge">Claude → Solver</span>
+                    <h2>{{ 'Tell the scheduler what you need' if current_lang == 'en' else 'כתבו למערכת מה אתם צריכים' }}</h2>
+                    <p>{{ 'Write freely in normal language. Claude will understand the request and translate it into rules the solver can apply.' if current_lang == 'en' else 'כתבו באופן חופשי ובשפה רגילה. Claude יבין את הבקשה ויתרגם אותה לכללים שהפותר יכול ליישם.' }}</p>
+                </div>
+                <span class="claude-status {{ 'ready' if claude_configured else 'not-ready' }}">
+                    {{ ('Claude connected' if claude_configured else 'Claude API key required') if current_lang == 'en' else ('Claude מחובר' if claude_configured else 'נדרש מפתח API של Claude') }}
+                </span>
             </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endwith %}
-
-            <form method="post" action="{{ url_for('generate_timetable') }}" class="setup-form generate-form">
-                <section class="degree-settings">
-                    <div class="setting-field">
-                        <label for="degree_years">מספר שנות התואר</label>
-                        <input
-                            id="degree_years"
-                            type="number"
-                            name="degree_years"
-                            min="1"
-                            max="10"
-                            value="{{ config.degree_years }}"
-                            required
-                        >
-                    </div>
-
-                    <div class="setting-field">
-                        <label for="semesters_per_year">מספר סמסטרים בשנה</label>
-                        <input
-                            id="semesters_per_year"
-                            type="number"
-                            name="semesters_per_year"
-                            min="1"
-                            max="4"
-                            value="{{ config.semesters_per_year }}"
-                            required
-                        >
-                    </div>
-
-                    <div class="degree-total">
-                        <span>סה"כ סמסטרים בתכנית</span>
-                        <strong id="totalSemesters">
-                            {{ config.degree_years * config.semesters_per_year }}
-                        </strong>
-                    </div>
-                </section>
-
-                <h2 class="availability-title">ימי ושעות פעילות המחלקה</h2>
-
-                <div class="availability-list">
-                    {% for day in all_days %}
-                        {% set values = config.days[day.key] %}
-                        <div class="availability-row">
-                            <label class="day-checkbox">
-                                <input
-                                    type="checkbox"
-                                    name="enabled_{{ day.key }}"
-                                    {% if values.enabled %}checked{% endif %}
-                                >
-                                <span>{{ day.hebrew }}</span>
-                            </label>
-
-                            <div class="time-field">
-                                <label for="start_{{ day.key }}">משעה</label>
-                                <input
-                                    id="start_{{ day.key }}"
-                                    type="time"
-                                    name="start_{{ day.key }}"
-                                    value="{{ values.start }}"
-                                    step="900"
-                                >
-                            </div>
-
-                            <div class="time-field">
-                                <label for="end_{{ day.key }}">עד שעה</label>
-                                <input
-                                    id="end_{{ day.key }}"
-                                    type="time"
-                                    name="end_{{ day.key }}"
-                                    value="{{ values.end }}"
-                                    step="900"
-                                >
-                            </div>
+            {% if ai_chat %}
+                <div class="assistant-chat-history dashboard-chat-history">
+                    {% for message in ai_chat[-6:] %}
+                        <div class="chat-row {{ message.role }}">
+                            <div class="chat-bubble {{ message.status or '' }}">{{ message.text }}</div>
                         </div>
                     {% endfor %}
                 </div>
+            {% endif %}
 
-                <div class="solver-note">
-                    <strong>מה קורה לאחר הלחיצה?</strong>
-                    <span>
-                        המערכת שולחת את הימים והשעות ל־Backend, קוראת מה־Excel את
-                        קורסי הקדם ואת התנאים המקבילים, ואז מריצה את ה־Solver.
-                    </span>
-                </div>
-
-                <button class="generate-button" type="submit">
-                    בנה מערכת שעות
-                </button>
+            <form class="assistant-compose generate-form dashboard-compose" method="post" action="{{ url_for('apply_ai_requirement') }}">
+                <textarea name="assistant_text" rows="4" required placeholder="{{ 'Example: Professor Sela cannot teach on Tuesdays. Make Wednesday lighter for second-year students.' if current_lang == 'en' else 'לדוגמה: פרופ׳ סלע לא יכול ללמד בימי שלישי. הפוך את יום רביעי לקל יותר עבור שנה ב׳.' }}"></textarea>
+                <button class="primary-button" type="submit">{{ 'Apply request' if current_lang == 'en' else 'החל בקשה' }}</button>
             </form>
         </section>
-    </main>
-    <script>
-        const yearsInput = document.getElementById("degree_years");
-        const semestersInput = document.getElementById("semesters_per_year");
-        const totalSemesters = document.getElementById("totalSemesters");
 
-        function updateTotalSemesters() {
-            const years = Number(yearsInput.value || 0);
-            const semesters = Number(semestersInput.value || 0);
-            totalSemesters.textContent = years * semesters;
-        }
+        <aside class="quick-actions-card">
+            <div class="quick-actions-title">
+                <span class="section-icon">⚙</span>
+                <div>
+                    <h2>{{ 'Schedule setup' if current_lang == 'en' else 'הגדרות מערכת' }}</h2>
+                    <p>{{ 'Keep detailed day settings off this page.' if current_lang == 'en' else 'הגדרות הימים המפורטות נמצאות בעמוד נפרד.' }}</p>
+                </div>
+            </div>
+            <div class="degree-summary-grid">
+                <div class="metric-tile"><span>{{ 'Degree years' if current_lang == 'en' else 'שנות לימוד' }}</span><strong>{{ config.degree_years }}</strong></div>
+                <div class="metric-tile"><span>{{ 'Semesters / year' if current_lang == 'en' else 'סמסטרים בשנה' }}</span><strong>{{ config.semesters_per_year }}</strong></div>
+                <div class="metric-tile wide"><span>{{ 'Active teaching days' if current_lang == 'en' else 'ימי לימוד פעילים' }}</span><strong>{{ config.days.values() | selectattr('enabled') | list | length }}</strong></div>
+            </div>
+            <a class="action-card-link" href="{{ url_for('day_adjustment_page') }}">
+                <span>
+                    <strong>{{ 'Adjust days & hours' if current_lang == 'en' else 'התאמת ימים ושעות' }}</strong>
+                    <small>{{ 'Choose active days, opening hours and degree structure' if current_lang == 'en' else 'בחירת ימי לימוד, שעות פעילות ומבנה התואר' }}</small>
+                </span>
+                <b>→</b>
+            </a>
+            <form method="post" action="{{ url_for('generate_timetable') }}" class="generate-form dashboard-build-form">
+                <input type="hidden" name="degree_years" value="{{ config.degree_years }}">
+                <input type="hidden" name="semesters_per_year" value="{{ config.semesters_per_year }}">
+                {% for day in all_days %}
+                    {% set values = config.days[day.key] %}
+                    {% if values.enabled %}<input type="hidden" name="enabled_{{ day.key }}" value="on">{% endif %}
+                    <input type="hidden" name="start_{{ day.key }}" value="{{ values.start }}">
+                    <input type="hidden" name="end_{{ day.key }}" value="{{ values.end }}">
+                {% endfor %}
+                <button class="primary-button full-width" type="submit">{{ 'Build / Rebuild Timetable' if current_lang == 'en' else 'בנה / בנה מחדש את המערכת' }}</button>
+            </form>
+        </aside>
+    </section>
 
-        yearsInput.addEventListener("input", updateTotalSemesters);
-        semestersInput.addEventListener("input", updateTotalSemesters);
-    </script>
-    <script>
-        const buildForm = document.querySelector(".generate-form");
-        const loadingOverlay = document.getElementById("loadingOverlay");
+    <section class="dashboard-section" id="constraints">
+        <div class="section-heading-row">
+            <div>
+                <span class="section-label">{{ 'CONSTRAINTS' if current_lang == 'en' else 'אילוצים' }}</span>
+                <h2>{{ 'Everything the solver is currently considering' if current_lang == 'en' else 'כל מה שהפותר לוקח כרגע בחשבון' }}</h2>
+            </div>
+            <div class="constraint-counts">
+                <span>{{ core_constraints|length }} {{ 'built-in' if current_lang == 'en' else 'מובנים' }}</span>
+                <span>{{ ai_constraints|length }} {{ 'AI rules' if current_lang == 'en' else 'כללי AI' }}</span>
+            </div>
+        </div>
 
-        if (buildForm) {
-            buildForm.addEventListener("submit", () => {
-                if (loadingOverlay) loadingOverlay.hidden = false;
+        <div class="constraints-layout">
+            <div class="constraints-column">
+                <h3>{{ 'Built-in solver constraints' if current_lang == 'en' else 'אילוצי הפותר המובנים' }}</h3>
+                <div class="constraint-grid">
+                    {% for item in core_constraints %}
+                    <article class="constraint-card">
+                        <div class="constraint-card-top">
+                            <strong>{{ item.title }}</strong>
+                            <span class="rule-strength {{ 'hard' if item.hard else 'soft' }}">{{ ('Hard' if item.hard else 'Objective') if current_lang == 'en' else ('אילוץ קשיח' if item.hard else 'מטרה / העדפה') }}</span>
+                        </div>
+                        <p>{{ item.description }}</p>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="constraints-column ai-rules-column">
+                <div class="active-rules-heading">
+                    <h3>{{ 'Department / AI requirements' if current_lang == 'en' else 'דרישות מחלקה / AI' }}</h3>
+                    {% if ai_constraints %}
+                    <form method="post" action="{{ url_for('clear_ai_requirements') }}">
+                        <button class="text-button danger" type="submit">{{ 'Clear all' if current_lang == 'en' else 'נקה הכל' }}</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% if ai_constraints %}
+                    <div class="dashboard-rule-list">
+                        {% for rule in ai_constraints %}
+                            <article class="dashboard-rule-item">
+                                <div class="dashboard-rule-copy">
+                                    <span class="rule-strength {{ 'hard' if rule.hard else 'soft' }}">{{ ('Hard' if rule.hard else 'Preference') if current_lang == 'en' else ('אילוץ קשיח' if rule.hard else 'העדפה') }}</span>
+                                    <strong>{{ rule.description }}</strong>
+                                    <small>{{ rule.kind|replace('_', ' ') }}</small>
+                                </div>
+                                <form method="post" action="{{ url_for('remove_ai_requirement', rule_id=rule.id) }}">
+                                    <button class="rule-remove" type="submit" title="{{ 'Remove requirement' if current_lang == 'en' else 'הסר דרישה' }}">×</button>
+                                </form>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-constraints-state">
+                        <span>✦</span>
+                        <strong>{{ 'No extra department rules yet' if current_lang == 'en' else 'עדיין אין כללי מחלקה נוספים' }}</strong>
+                        <p>{{ 'Use the Claude box above to add requirements in your own words.' if current_lang == 'en' else 'השתמשו בתיבת Claude למעלה כדי להוסיף דרישות במילים שלכם.' }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-section" id="course-data">
+        <div class="section-heading-row">
+            <div>
+                <span class="section-label">{{ 'COURSE DATA' if current_lang == 'en' else 'נתוני קורסים' }}</span>
+                <h2>{{ 'Course source' if current_lang == 'en' else 'מקור הקורסים' }}</h2>
+                <p>{{ 'Upload the department Excel file or add an individual course manually.' if current_lang == 'en' else 'העלו קובץ Excel של המחלקה או הוסיפו קורס בודד ידנית.' }}</p>
+            </div>
+            <div class="course-file-status {{ 'ready' if courses_excel_exists else 'missing' }}">
+                <strong>{{ courses|length }}</strong>
+                <span>{{ 'courses loaded' if current_lang == 'en' else 'קורסים נטענו' }}</span>
+            </div>
+        </div>
+
+        <div class="course-data-grid">
+            <article class="data-action-card upload-card">
+                <span class="data-card-icon">⇧</span>
+                <h3>{{ 'Upload course Excel' if current_lang == 'en' else 'העלאת Excel קורסים' }}</h3>
+                <p>{{ 'The file must contain the same course columns used by the scheduler. Uploading replaces the current course source after validation.' if current_lang == 'en' else 'הקובץ צריך להכיל את אותן עמודות קורסים שבהן משתמשת המערכת. לאחר בדיקה הוא יחליף את מקור הקורסים הנוכחי.' }}</p>
+                <form method="post" action="{{ url_for('upload_courses_excel') }}" enctype="multipart/form-data" class="upload-form generate-form">
+                    <label class="file-drop-zone" for="courses_excel">
+                        <input id="courses_excel" type="file" name="courses_excel" accept=".xlsx,.xlsm" required>
+                        <strong>{{ 'Choose Excel file' if current_lang == 'en' else 'בחרו קובץ Excel' }}</strong>
+                        <span id="selectedFileName">{{ 'No new file selected' if current_lang == 'en' else 'לא נבחר קובץ חדש' }}</span>
+                    </label>
+                    <button class="secondary-solid-button" type="submit">{{ 'Upload & validate' if current_lang == 'en' else 'העלה ובדוק' }}</button>
+                </form>
+            </article>
+
+            <article class="data-action-card" id="manual-course">
+                <span class="data-card-icon">＋</span>
+                <h3>{{ 'Add a course manually' if current_lang == 'en' else 'הוספת קורס ידנית' }}</h3>
+                <p>{{ 'Add one course directly to the same Excel source used by the solver.' if current_lang == 'en' else 'הוסיפו קורס אחד ישירות לאותו מקור Excel שבו משתמש הפותר.' }}</p>
+                <details class="manual-course-details">
+                    <summary>{{ 'Open course form' if current_lang == 'en' else 'פתח טופס קורס' }}</summary>
+                    <form method="post" action="{{ url_for('add_course_manually') }}" class="manual-course-form generate-form">
+                        <label><span>{{ 'Course ID' if current_lang == 'en' else 'מספר קורס' }}</span><input type="number" name="course_id" required></label>
+                        <label class="span-2"><span>{{ 'Course name' if current_lang == 'en' else 'שם הקורס' }}</span><input type="text" name="course_name" required></label>
+                        <label><span>{{ 'Study year' if current_lang == 'en' else 'שנת לימודים' }}</span><input type="number" min="1" name="course_year" required></label>
+                        <label class="span-2"><span>{{ 'Lecturer' if current_lang == 'en' else 'שם המרצה' }}</span><input type="text" name="lecturer" required></label>
+                        <label><span>{{ 'Credits' if current_lang == 'en' else 'נקודות זכות' }}</span><input type="number" min="0.25" step="0.25" name="credits" required></label>
+                        <label><span>{{ 'Weekly hours' if current_lang == 'en' else 'שעות שבועיות' }}</span><input type="number" min="0.25" step="0.25" name="weekly_hours" required></label>
+                        <label><span>{{ 'Course type' if current_lang == 'en' else 'סוג שיעור' }}</span>
+                            <select name="course_type" required><option value="שעור ותרגול">{{ 'Lecture + Tutorial' if current_lang == 'en' else 'הרצאה + תרגול' }}</option><option value="שעור">{{ 'Lecture only' if current_lang == 'en' else 'הרצאה בלבד' }}</option></select>
+                        </label>
+                        <label class="span-2"><span>{{ 'Prerequisites (optional)' if current_lang == 'en' else 'קורסי קדם (אופציונלי)' }}</span><input type="text" name="prerequisites"></label>
+                        <label class="span-2"><span>{{ 'Parallel requirement (optional)' if current_lang == 'en' else 'דרישה מקבילה (אופציונלי)' }}</span><input type="text" name="parallel_requirement"></label>
+                        <button class="primary-button span-2" type="submit">{{ 'Add course' if current_lang == 'en' else 'הוסף קורס' }}</button>
+                    </form>
+                </details>
+            </article>
+        </div>
+
+        {% if courses %}
+        <article class="course-catalog-card">
+            <div class="course-catalog-header">
+                <div>
+                    <span class="data-card-icon">▤</span>
+                    <div>
+                        <h3>{{ 'Courses currently loaded from Excel' if current_lang == 'en' else 'הקורסים שנטענו כרגע מקובץ ה-Excel' }}</h3>
+                        <p>{{ 'This table shows the course data the solver is currently using.' if current_lang == 'en' else 'הטבלה מציגה את נתוני הקורסים שבהם הפותר משתמש כרגע.' }}</p>
+                    </div>
+                </div>
+                <input id="courseSearch" class="course-search-input" type="search" placeholder="{{ 'Search course, lecturer or ID...' if current_lang == 'en' else 'חיפוש לפי קורס, מרצה או מספר...' }}">
+            </div>
+            <div class="course-table-wrap">
+                <table class="course-data-table" id="courseTable">
+                    <thead>
+                        <tr>
+                            <th>{{ 'Course ID' if current_lang == 'en' else 'מספר קורס' }}</th>
+                            <th>{{ 'Course name' if current_lang == 'en' else 'שם הקורס' }}</th>
+                            <th>{{ 'Year' if current_lang == 'en' else 'שנה' }}</th>
+                            <th>{{ 'Lecturer' if current_lang == 'en' else 'מרצה' }}</th>
+                            <th>{{ 'Credits' if current_lang == 'en' else 'נק״ז' }}</th>
+                            <th>{{ 'Weekly hours' if current_lang == 'en' else 'ש״ש' }}</th>
+                            <th>{{ 'Type' if current_lang == 'en' else 'סוג' }}</th>
+                            <th>{{ 'Prerequisites' if current_lang == 'en' else 'קורסי קדם' }}</th>
+                            <th>{{ 'Parallel requirement' if current_lang == 'en' else 'דרישה מקבילה' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>{{ course.course_id }}</td>
+                            <td><strong>{{ course.name }}</strong></td>
+                            <td>{{ course.year }}</td>
+                            <td>{{ course.lecturer }}</td>
+                            <td>{{ course.credits }}</td>
+                            <td>{{ course.weekly_hours }}</td>
+                            <td>{{ course.course_type }}</td>
+                            <td>{{ course.prerequisites or '—' }}</td>
+                            <td>{{ course.parallel_requirement or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+        {% endif %}
+    </section>
+</main>
+<script>
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    document.querySelectorAll('.generate-form').forEach(form => {
+        form.addEventListener('submit', () => { if (loadingOverlay) loadingOverlay.hidden = false; });
+    });
+    window.addEventListener('pageshow', () => { if (loadingOverlay) loadingOverlay.hidden = true; });
+    const fileInput = document.getElementById('courses_excel');
+    const fileName = document.getElementById('selectedFileName');
+    if (fileInput && fileName) fileInput.addEventListener('change', () => {
+        fileName.textContent = fileInput.files[0] ? fileInput.files[0].name : {{ ('No new file selected' if current_lang == 'en' else 'לא נבחר קובץ חדש')|tojson }};
+    });
+    const courseSearch = document.getElementById('courseSearch');
+    const courseRows = document.querySelectorAll('#courseTable tbody tr');
+    if (courseSearch && courseRows.length) {
+        courseSearch.addEventListener('input', () => {
+            const term = courseSearch.value.trim().toLowerCase();
+            courseRows.forEach(row => {
+                row.hidden = term && !row.textContent.toLowerCase().includes(term);
             });
-        }
-
-        window.addEventListener("pageshow", () => {
-            if (loadingOverlay) loadingOverlay.hidden = true;
         });
-    </script>
+    }
+</script>
 </body>
 </html>

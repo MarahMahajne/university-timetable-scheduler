@@ -1,0 +1,194 @@
+{
+  "7100009": {
+    "lecturer": "Mani Yael",
+    "name": "Organizational Behavior"
+  },
+  "8100057": {
+    "lecturer": "Barkan Lev Adi",
+    "name": "Legal and Ethical Aspects of Information Systems"
+  },
+  "8500001": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Introduction to Computer Science in C++"
+  },
+  "8500002": {
+    "lecturer": "Mr. Minkin Alexander",
+    "name": "Calculus 1"
+  },
+  "8500005": {
+    "lecturer": "Mr. Minkin Alexander",
+    "name": "Calculus 2",
+    "prerequisites": "Calculus 1"
+  },
+  "8500006": {
+    "lecturer": "Mr. Green Ozeri Netanel",
+    "name": "Object-Oriented Programming in Java",
+    "prerequisites": "Introduction to Computer Science in C++"
+  },
+  "8500007": {
+    "lecturer": "Dr. Weisblat Tal",
+    "name": "Linear Algebra 1"
+  },
+  "8500008": {
+    "lecturer": "Dr. Carmon Miriam Shirel",
+    "name": "Discrete Mathematics"
+  },
+  "8500009": {
+    "lecturer": "Ganot Itzik",
+    "name": "Software Development Methods",
+    "prerequisites": "Introduction to Computer Science in C++"
+  },
+  "8500010": {
+    "lecturer": "Dr. Fried Sela",
+    "name": "Linear Algebra 2",
+    "prerequisites": "Linear Algebra 1"
+  },
+  "8500011": {
+    "lecturer": "Dr. Fried Sela",
+    "name": "Introduction to Probability and Statistics",
+    "prerequisites": "Calculus 1"
+  },
+  "8500012": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Data Structures",
+    "prerequisites": "Discrete Mathematics + Introduction to Computer Science in C++"
+  },
+  "8500013": {
+    "lecturer": "Dr. Fried Sela",
+    "name": "Automata and Formal Languages",
+    "prerequisites": "Logic and Set Theory"
+  },
+  "8500015": {
+    "lecturer": "Asaf Harel",
+    "name": "Software Project Management",
+    "prerequisites": "Introduction to Computer Science in C++"
+  },
+  "8500016": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Algorithms",
+    "parallel_requirement": "Introduction to Probability and Statistics",
+    "prerequisites": "Data Structures + Linear Algebra 1"
+  },
+  "8500017": {
+    "lecturer": "Mr. Green Ozeri Netanel",
+    "name": "Computer Organization and Assembly Language",
+    "prerequisites": "Introduction to Computer Science in C++"
+  },
+  "8500018": {
+    "lecturer": "Asaf Harel",
+    "name": "Principles of Operating Systems",
+    "prerequisites": "Introduction to Computer Science in C++"
+  },
+  "8500020": {
+    "lecturer": "Dr. Fried Sela",
+    "name": "Computability and Complexity",
+    "prerequisites": "Algorithms + Automata and Formal Languages"
+  },
+  "8500025": {
+    "lecturer": "Dr. Weisblat Tal",
+    "name": "Databases",
+    "prerequisites": "Introduction to Computer Science in C++"
+  },
+  "8500026": {
+    "lecturer": "Mr. Green Ozeri Netanel",
+    "name": "Applied Project in Application Development",
+    "prerequisites": "Advanced Programming in Python"
+  },
+  "8500027": {
+    "lecturer": "Dr. Sagi Guy",
+    "name": "Introduction to Cyber Security",
+    "prerequisites": "Introduction to Computer Science in C++"
+  },
+  "8500029": {
+    "lecturer": "Dr. Weisblat Tal",
+    "name": "Logic and Set Theory",
+    "prerequisites": "Discrete Mathematics"
+  },
+  "8500031": {
+    "lecturer": "Dr. Slava Birfir",
+    "name": "AI-Based Software Development",
+    "prerequisites": "Advanced Programming in Python"
+  },
+  "8500032": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Applied Project in Artificial Intelligence",
+    "prerequisites": "Deep Learning"
+  },
+  "8500033": {
+    "lecturer": "Dr. Carmon Miriam Shirel",
+    "name": "Applications in Computational Biology",
+    "prerequisites": "Advanced Programming in Python + Algorithms"
+  },
+  "8500034": {
+    "lecturer": "Dashen Mor",
+    "name": "Learning How to Learn"
+  },
+  "8500035": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Applied Project in Artificial Intelligence",
+    "prerequisites": "Deep Learning"
+  },
+  "8500036": {
+    "lecturer": "Dr. Fried Sela",
+    "name": "Introduction to Artificial Intelligence",
+    "prerequisites": "Discrete Mathematics"
+  },
+  "8510002": {
+    "lecturer": "Bochnik Sa'ar",
+    "name": "Advanced Programming in Python",
+    "prerequisites": "Object-Oriented Programming in Java"
+  },
+  "8510007": {
+    "lecturer": "Dr. Fried Sela",
+    "name": "Foundations of Cryptography",
+    "prerequisites": "Linear Algebra 1 + Data Structures"
+  },
+  "8510008": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Introduction to Machine Learning",
+    "parallel_requirement": "Advanced Programming in Python",
+    "prerequisites": "Calculus 1 + Linear Algebra 1 + Introduction to Probability and Statistics + Data Structures"
+  },
+  "8510012": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Deep Learning",
+    "prerequisites": "Introduction to Machine Learning / Introduction to Machine Learning"
+  },
+  "8510014": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Seminar 1 - Data Structures Seminar",
+    "prerequisites": "Data Structures"
+  },
+  "8510015": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Seminar 2 - Algorithms Seminar",
+    "prerequisites": "Algorithms"
+  },
+  "8510018": {
+    "lecturer": "Dr. Nur Igor",
+    "name": "Seminar 5 - Machine Learning Seminar",
+    "prerequisites": "Deep Learning"
+  },
+  "8510019": {
+    "lecturer": "Dr. Sagi Guy",
+    "name": "Seminar 6 - Cyber Security Seminar",
+    "prerequisites": "Introduction to Cyber Security"
+  },
+  "8510020": {
+    "lecturer": "Ben Artzi Hezi",
+    "name": "Introduction to Data Communications",
+    "parallel_requirement": "Advanced Programming in Python",
+    "prerequisites": "Data Structures + Introduction to Probability and Statistics"
+  },
+  "8510021": {
+    "lecturer": "Dr. Sagi Guy",
+    "name": "Distributed Algorithms",
+    "parallel_requirement": "Advanced Programming in Python",
+    "prerequisites": "Algorithms"
+  },
+  "8510026": {
+    "lecturer": "Dr. Sagi Guy",
+    "name": "Seminar 7 - Web Development Seminar",
+    "prerequisites": "Advanced Programming in Python"
+  }
+}

@@ -1,0 +1,275 @@
+# English translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-07 23:28+0000\n"
+"PO-Revision-Date: 2026-09-07 23:28+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: en <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app.py:154
+msgid "The number of years in the degree must be between 1 and 10."
+msgstr "The number of years in the degree must be between 1 and 10."
+
+#: app.py:157
+msgid "The number of semesters per year must be between 1 and 4."
+msgstr "The number of semesters per year must be between 1 and 4."
+
+#: app.py:174
+#, python-format
+msgid "On %(day)s the start time must be before the end time."
+msgstr "On %(day)s the start time must be before the end time."
+
+#: app.py:180
+msgid "Hours must be in 15-minute increments."
+msgstr "Hours must be in 15-minute increments."
+
+#: app.py:183
+msgid "You must select at least one teaching day."
+msgstr "You must select at least one teaching day."
+
+#: app.py:230
+msgid "The solver exceeded the 3-minute time limit."
+msgstr "The solver exceeded the 3-minute time limit."
+
+#: app.py:234
+msgid "Unknown error."
+msgstr "Unknown error."
+
+#: app.py:249
+#, python-format
+msgid "Year %(year)s - Semester %(semester)s"
+msgstr "Year %(year)s - Semester %(semester)s"
+
+#: app.py:273 templates/calendar.html:156
+msgid "Tutorial"
+msgstr "Tutorial"
+
+#: app.py:273 templates/calendar.html:155
+msgid "Lecture"
+msgstr "Lecture"
+
+#: app.py:343
+msgid ""
+"We couldn't build a timetable that satisfies all the hard constraints. "
+"Please check the number of semesters, the prerequisite/parallel courses, and"
+" the active days and hours."
+msgstr ""
+"We couldn't build a timetable that satisfies all the hard constraints. "
+"Please check the number of semesters, the prerequisite/parallel courses, and"
+" the active days and hours."
+
+#: app.py:352
+msgid "The timetable was built successfully by the solver."
+msgstr "The timetable was built successfully by the solver."
+
+#: templates/calendar.html:6
+msgid "Timetable"
+msgstr "Timetable"
+
+#: templates/calendar.html:13 templates/setup.html:13
+msgid "Building the timetable..."
+msgstr "Building the timetable..."
+
+#: templates/calendar.html:14
+msgid ""
+"The solver is checking constraints and searching for a suitable timetable. "
+"This can take a few seconds."
+msgstr ""
+"The solver is checking constraints and searching for a suitable timetable. "
+"This can take a few seconds."
+
+#: templates/calendar.html:27
+msgid "Step 2 of 2"
+msgstr "Step 2 of 2"
+
+#: templates/calendar.html:28
+msgid "Generated Timetable"
+msgstr "Generated Timetable"
+
+#: templates/calendar.html:30
+msgid ""
+"This is the result the solver generated based on the configured days and "
+"hours."
+msgstr ""
+"This is the result the solver generated based on the configured days and "
+"hours."
+
+#: templates/calendar.html:36
+msgid "Change Days and Hours"
+msgstr "Change Days and Hours"
+
+#: templates/calendar.html:40
+msgid "Courses"
+msgstr "Courses"
+
+#: templates/calendar.html:44
+msgid "Semesters"
+msgstr "Semesters"
+
+#: templates/calendar.html:58
+msgid "Department settings:"
+msgstr "Department settings:"
+
+#: templates/calendar.html:68
+msgid "No timetable has been generated yet"
+msgstr "No timetable has been generated yet"
+
+#: templates/calendar.html:69
+msgid "Configure days and hours"
+msgstr "Configure days and hours"
+
+#: templates/calendar.html:73
+msgid "Show timetable for:"
+msgstr "Show timetable for:"
+
+#: templates/calendar.html:75
+msgid "All semesters"
+msgstr "All semesters"
+
+#: templates/calendar.html:89
+msgid "Time"
+msgstr "Time"
+
+#: templates/calendar.html:125 templates/calendar.html:145
+msgid "Prerequisite"
+msgstr "Prerequisite"
+
+#: templates/calendar.html:125 templates/calendar.html:145
+#: templates/calendar.html:146
+msgid "None"
+msgstr "None"
+
+#: templates/calendar.html:125 templates/calendar.html:146
+msgid "Parallel requirement"
+msgstr "Parallel requirement"
+
+#: templates/calendar.html:162
+msgid "Overview of the entire degree"
+msgstr "Overview of the entire degree"
+
+#: templates/calendar.html:164
+msgid ""
+"Compact view: days without classes take up no space, and breaks are "
+"preserved in the schedule but are not shown as empty space."
+msgstr ""
+"Compact view: days without classes take up no space, and breaks are "
+"preserved in the schedule but are not shown as empty space."
+
+#: templates/calendar.html:174
+#, python-format
+msgid "Year %(num)s"
+msgstr "Year %(num)s"
+
+#: templates/calendar.html:175
+#, python-format
+msgid "%(count)s semesters"
+msgstr "%(count)s semesters"
+
+#: templates/calendar.html:189
+#, python-format
+msgid "Click to open %(name)s in full view"
+msgstr "Click to open %(name)s in full view"
+
+#: templates/calendar.html:193
+#, python-format
+msgid "Semester %(num)s"
+msgstr "Semester %(num)s"
+
+#: templates/calendar.html:196
+#, python-format
+msgid "%(count)s courses"
+msgstr "%(count)s courses"
+
+#: templates/calendar.html:240
+msgid "No courses in this semester"
+msgstr "No courses in this semester"
+
+#: templates/setup.html:6
+msgid "Configure Department Days and Hours"
+msgstr "Configure Department Days and Hours"
+
+#: templates/setup.html:14
+msgid ""
+"The solver is checking all constraints and searching for a suitable "
+"timetable."
+msgstr ""
+"The solver is checking all constraints and searching for a suitable "
+"timetable."
+
+#: templates/setup.html:27
+msgid "Step 1 of 2"
+msgstr "Step 1 of 2"
+
+#: templates/setup.html:28
+msgid "Configure Department Schedule"
+msgstr "Configure Department Schedule"
+
+#: templates/setup.html:30
+msgid ""
+"Choose which days the department is active and the allowed hour range for "
+"each day."
+msgstr ""
+"Choose which days the department is active and the allowed hour range for "
+"each day."
+
+#: templates/setup.html:31
+msgid ""
+"Only after clicking \"Build Timetable\" will the solver run and generate the"
+" timetable."
+msgstr ""
+"Only after clicking \"Build Timetable\" will the solver run and generate the"
+" timetable."
+
+#: templates/setup.html:44
+msgid "Number of years in the degree"
+msgstr "Number of years in the degree"
+
+#: templates/setup.html:57
+msgid "Number of semesters per year"
+msgstr "Number of semesters per year"
+
+#: templates/setup.html:70
+msgid "Total semesters in the program"
+msgstr "Total semesters in the program"
+
+#: templates/setup.html:77
+msgid "Department active days and hours"
+msgstr "Department active days and hours"
+
+#: templates/setup.html:93
+msgid "From"
+msgstr "From"
+
+#: templates/setup.html:104
+msgid "To"
+msgstr "To"
+
+#: templates/setup.html:118
+msgid "What happens after clicking?"
+msgstr "What happens after clicking?"
+
+#: templates/setup.html:120
+msgid ""
+"The system sends the days and hours to the backend, reads the prerequisite "
+"and parallel requirement courses from the Excel file, and then runs the "
+"solver."
+msgstr ""
+"The system sends the days and hours to the backend, reads the prerequisite "
+"and parallel requirement courses from the Excel file, and then runs the "
+"solver."
+
+#: templates/setup.html:125
+msgid "Build Timetable"
+msgstr "Build Timetable"

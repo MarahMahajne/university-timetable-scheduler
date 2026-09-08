@@ -1,40 +1,47 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="{{ current_lang }}" dir="{{ text_direction }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת שעות</title>
+    <title>{{ _('Timetable') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
 </head>
 <body>
     <div id="loadingOverlay" class="loading-overlay" hidden>
         <div class="loading-box">
             <div class="spinner" aria-hidden="true"></div>
-            <h2>בונה מערכת שעות...</h2>
-            <p>ה־Solver בודק אילוצים ומחפש מערכת מתאימה. זה יכול לקחת כמה שניות.</p>
+            <h2>{{ _('Building the timetable...') }}</h2>
+            <p>{{ _('The solver is checking constraints and searching for a suitable timetable. This can take a few seconds.') }}</p>
         </div>
     </div>
     <main class="page">
+        <div class="lang-switcher">
+            {% for code, label in languages.items() %}
+                <a href="{{ url_for('set_language', lang_code=code) }}"
+                   class="{{ 'active' if current_lang == code else '' }}">{{ label }}</a>
+            {% endfor %}
+        </div>
+
         <header class="hero">
             <div>
-                <p class="eyebrow">שלב 2 מתוך 2</p>
-                <h1>מערכת השעות שנוצרה</h1>
+                <p class="eyebrow">{{ _('Step 2 of 2') }}</p>
+                <h1>{{ _('Generated Timetable') }}</h1>
                 <p class="subtitle">
-                    זו התוצאה שה־Solver יצר לפי הימים והשעות שהוגדרו.
+                    {{ _('This is the result the solver generated based on the configured days and hours.') }}
                 </p>
             </div>
 
             <div class="hero-actions">
                 <a class="secondary-button" href="{{ url_for('setup_page') }}">
-                    שנה ימים ושעות
+                    {{ 'Dashboard' if current_lang == 'en' else 'לוח ניהול' }}
                 </a>
                 <div class="summary">
                     <div class="summary-card">
-                        <span>קורסים</span>
+                        <span>{{ _('Courses') }}</span>
                         <strong>{{ unique_courses }}</strong>
                     </div>
                     <div class="summary-card">
-                        <span>סמסטרים</span>
+                        <span>{{ _('Semesters') }}</span>
                         <strong>{{ semesters|length }}</strong>
                     </div>
                 </div>
@@ -48,24 +55,24 @@
         {% endwith %}
 
         <section class="chosen-availability">
-            <strong>הגדרות המחלקה:</strong>
+            <strong>{{ _('Department settings:') }}</strong>
             {% for day in days %}
                 <span class="availability-chip">
-                    {{ day.hebrew }} {{ config.days[day.key].start }}–{{ config.days[day.key].end }}
+                    {{ day_label(day.key) }} {{ config.days[day.key].start }}–{{ config.days[day.key].end }}
                 </span>
             {% endfor %}
         </section>
 
         {% if not timetable %}
             <section class="empty-state">
-                <h2>עדיין לא נוצרה מערכת שעות</h2>
-                <a class="primary-link" href="{{ url_for('setup_page') }}">הגדר ימים ושעות</a>
+                <h2>{{ _('No timetable has been generated yet') }}</h2>
+                <a class="primary-link" href="{{ url_for('setup_page') }}">{{ 'Open dashboard' if current_lang == 'en' else 'פתח לוח ניהול' }}</a>
             </section>
         {% else %}
             <section class="controls">
-                <label for="semesterSelect">הצג מערכת עבור:</label>
+                <label for="semesterSelect">{{ _('Show timetable for:') }}</label>
                 <select id="semesterSelect">
-                    <option value="all">כל הסמסטרים</option>
+                    <option value="all">{{ _('All semesters') }}</option>
                     {% for semester, name in semesters %}
                         <option value="{{ semester }}">{{ name }}</option>
                     {% endfor %}
@@ -79,11 +86,11 @@
                     id="calendarGrid"
                     style="--day-count: {{ days|length }}; --slot-count: {{ slot_labels|length }}; min-width: {{ 82 + (days|length * 190) }}px;"
                 >
-                    <div class="corner-cell">שעה</div>
+                    <div class="corner-cell">{{ _('Time') }}</div>
 
                     {% for day in days %}
                         <div class="day-header" style="grid-column: {{ loop.index + 1 }};">
-                            {{ day.hebrew }}
+                            {{ day_label(day.key) }}
                             <small>{{ config.days[day.key].start }}–{{ config.days[day.key].end }}</small>
                         </div>
                     {% endfor %}
@@ -115,13 +122,13 @@
                                 data-semester-status="{{ event.semester_status }}"
                                 data-grid-span="{{ event.grid_span }}"
                                 style="grid-column: {{ event.grid_column }}; grid-row: {{ event.grid_row }} / span {{ event.grid_span }};"
-                                title="{{ event.name }} | {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }} | קדם: {{ event.prerequisites or 'אין' }} | מקביל: {{ event.parallel_requirement or 'אין' }}"
+                                title="{{ event.name }} | {{ event.event_type_label }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }} | {{ _('Prerequisite') }}: {{ event.prerequisites or _('None') }} | {{ _('Parallel requirement') }}: {{ event.parallel_requirement or _('None') }}"
                             >
                                 <strong class="course-name">{{ event.name }}</strong>
 
                                 <div class="course-compact-meta">
                                     <span class="event-type">
-                                        {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }}
+                                        {{ event.event_type_label }}
                                     </span>
                                     <span class="course-time">{{ event.start }}–{{ event.end }}</span>
                                 </div>
@@ -131,12 +138,12 @@
                                 <div class="course-hover-details">
                                     <strong>{{ event.name }}</strong>
                                     <span>
-                                        {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }}
+                                        {{ event.event_type_label }}
                                         · {{ event.start }}–{{ event.end }}
                                     </span>
                                     <span>{{ event.lecturer }}</span>
-                                    <small>קדם: {{ event.prerequisites or 'אין' }}</small>
-                                    <small>מקביל: {{ event.parallel_requirement or 'אין' }}</small>
+                                    <small>{{ _('Prerequisite') }}: {{ event.prerequisites or _('None') }}</small>
+                                    <small>{{ _('Parallel requirement') }}: {{ event.parallel_requirement or _('None') }}</small>
                                 </div>
                             </article>
                         {% endif %}
@@ -145,17 +152,16 @@
             </section>
 
             <section class="legend">
-                <span><i class="legend-color lecture-color"></i> הרצאה</span>
-                <span><i class="legend-color tutorial-color"></i> תרגול</span>
+                <span><i class="legend-color lecture-color"></i> {{ _('Lecture') }}</span>
+                <span><i class="legend-color tutorial-color"></i> {{ _('Tutorial') }}</span>
             </section>
 
             <section class="all-semesters-view" id="allSemestersView" hidden>
                 <div class="all-semesters-heading">
                     <div>
-                        <h2>מבט על כל התואר</h2>
+                        <h2>{{ _('Overview of the entire degree') }}</h2>
                         <p>
-                            תצוגה קומפקטית: ימים ללא שיעורים אינם תופסים מקום,
-                            והפסקות נשמרות במערכת אך אינן מוצגות כשטח ריק.
+                            {{ _('Compact view: days without classes take up no space, and breaks are preserved in the schedule but are not shown as empty space.') }}
                         </p>
                     </div>
                 </div>
@@ -165,8 +171,8 @@
                         <section class="degree-year-section dynamic-year-section">
                             <header class="degree-year-header">
                                 <div>
-                                    <h2>שנה {{ year_group.year }}</h2>
-                                    <span>{{ year_group.semesters|length }} סמסטרים</span>
+                                    <h2>{{ _('Year %(num)s', num=year_group.year) }}</h2>
+                                    <span>{{ _('%(count)s semesters', count=year_group.semesters|length) }}</span>
                                 </div>
                             </header>
 
@@ -180,14 +186,14 @@
                                         data-open-semester="{{ group.number }}"
                                         role="button"
                                         tabindex="0"
-                                        title="לחצי לפתיחת {{ group.name }} בתצוגה מלאה"
+                                        title="{{ _('Click to open %(name)s in full view', name=group.name) }}"
                                     >
                                         <header class="dynamic-semester-header">
                                             <div>
-                                                <span>סמסטר {{ group.semester_in_year }}</span>
+                                                <span>{{ _('Semester %(num)s', num=group.semester_in_year) }}</span>
                                                 <h3>{{ group.name }}</h3>
                                             </div>
-                                            <small>{{ group.course_count }} קורסים</small>
+                                            <small>{{ _('%(count)s courses', count=group.course_count) }}</small>
                                         </header>
 
                                         {% if group.events %}
@@ -202,14 +208,14 @@
                                                     {% if day_events %}
                                                         <section class="dynamic-day-column">
                                                             <header class="dynamic-day-title">
-                                                                {{ day.hebrew }}
+                                                                {{ day_label(day.key) }}
                                                             </header>
 
                                                             <div class="dynamic-events-list">
                                                                 {% for event in day_events %}
                                                                     <article
                                                                         class="dynamic-event {{ 'tutorial' if event.event_type == 'Tutorial' else 'lecture' }}"
-                                                                        title="{{ event.name }} | {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }}"
+                                                                        title="{{ event.name }} | {{ event.event_type_label }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }}"
                                                                     >
                                                                         <div class="dynamic-event-top">
                                                                             <strong>{{ event.name }}</strong>
@@ -218,7 +224,7 @@
 
                                                                         <div class="dynamic-event-meta">
                                                                             <span>
-                                                                                {{ 'תרגול' if event.event_type == 'Tutorial' else 'הרצאה' }}
+                                                                                {{ event.event_type_label }}
                                                                             </span>
                                                                             <span>{{ event.lecturer }}</span>
                                                                         </div>
@@ -231,7 +237,7 @@
                                             </div>
                                         {% else %}
                                             <div class="dynamic-empty-semester">
-                                                אין קורסים בסמסטר זה
+                                                {{ _('No courses in this semester') }}
                                             </div>
                                         {% endif %}
                                     </article>
