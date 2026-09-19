@@ -29,6 +29,7 @@
                 {% endfor %}
             </div>
             <a class="secondary-button" href="{{ url_for('calendar_page') }}">{{ 'View Timetable' if current_lang == 'en' else 'צפייה במערכת' }}</a>
+            <a class="secondary-button" href="{{ url_for('export_system_json') }}">{{ 'Download system JSON' if current_lang == 'en' else 'הורדת JSON של המערכת' }}</a>
         </div>
     </header>
 
@@ -44,7 +45,7 @@
                 <div>
                     <span class="ai-badge">Claude → Solver</span>
                     <h2>{{ 'Tell the scheduler what you need' if current_lang == 'en' else 'כתבו למערכת מה אתם צריכים' }}</h2>
-                    <p>{{ 'Write freely in normal language. Claude will understand the request and translate it into rules the solver can apply.' if current_lang == 'en' else 'כתבו באופן חופשי ובשפה רגילה. Claude יבין את הבקשה ויתרגם אותה לכללים שהפותר יכול ליישם.' }}</p>
+                    <p>{{ 'Talk with Claude freely. The solver will run only after you review Claude’s proposal and press Apply to timetable.' if current_lang == 'en' else 'נהלו שיחה חופשית עם Claude. הפותר יופעל רק אחרי שתבדקו את ההצעה של Claude ותלחצו על החלה על המערכת.' }}</p>
                 </div>
                 <span class="claude-status {{ 'ready' if claude_configured else 'not-ready' }}">
                     {{ ('Claude connected' if claude_configured else 'Claude API key required') if current_lang == 'en' else ('Claude מחובר' if claude_configured else 'נדרש מפתח API של Claude') }}
@@ -63,8 +64,37 @@
 
             <form class="assistant-compose generate-form dashboard-compose" method="post" action="{{ url_for('apply_ai_requirement') }}">
                 <textarea name="assistant_text" rows="4" required placeholder="{{ 'Example: Professor Sela cannot teach on Tuesdays. Make Wednesday lighter for second-year students.' if current_lang == 'en' else 'לדוגמה: פרופ׳ סלע לא יכול ללמד בימי שלישי. הפוך את יום רביעי לקל יותר עבור שנה ב׳.' }}"></textarea>
-                <button class="primary-button" type="submit">{{ 'Apply request' if current_lang == 'en' else 'החל בקשה' }}</button>
+                <button class="primary-button" type="submit">{{ 'Send to Claude' if current_lang == 'en' else 'שלח ל-Claude' }}</button>
             </form>
+
+            {% if ai_pending %}
+                <div class="ai-proposal-card">
+                    <strong>{{ 'Claude’s proposed change' if current_lang == 'en' else 'השינוי ש-Claude מציע' }}</strong>
+                    <p>{{ ai_pending.message }}</p>
+                    {% if ai_pending.rules %}
+                        <ul>
+                            {% for rule in ai_pending.rules %}
+                                <li>{{ rule.description }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if ai_pending.data_actions %}
+                        <ul>
+                            {% for action in ai_pending.data_actions %}
+                                <li>{{ ('Add course: ' if current_lang == 'en' else 'הוספת קורס: ') }}{{ action.name }} — {{ action.lecturer }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('confirm_ai_requirement') }}">
+                        {% if ai_pending.data_actions and not ai_pending.rules %}
+                            <button class="primary-button" type="submit">{{ 'Confirm data change' if current_lang == 'en' else 'אישור הוספת הנתונים' }}</button>
+                        {% else %}
+                            <button class="primary-button" type="submit">{{ 'Apply to timetable & run solver' if current_lang == 'en' else 'החל על המערכת והפעל את הפותר' }}</button>
+                        {% endif %}
+                    </form>
+                    <small>{{ 'You can also keep chatting instead of applying this proposal.' if current_lang == 'en' else 'אפשר גם להמשיך לדבר עם Claude במקום להחיל את ההצעה כרגע.' }}</small>
+                </div>
+            {% endif %}
         </section>
 
         <aside class="quick-actions-card">
@@ -79,6 +109,7 @@
                 <div class="metric-tile"><span>{{ 'Degree years' if current_lang == 'en' else 'שנות לימוד' }}</span><strong>{{ config.degree_years }}</strong></div>
                 <div class="metric-tile"><span>{{ 'Semesters / year' if current_lang == 'en' else 'סמסטרים בשנה' }}</span><strong>{{ config.semesters_per_year }}</strong></div>
                 <div class="metric-tile wide"><span>{{ 'Active teaching days' if current_lang == 'en' else 'ימי לימוד פעילים' }}</span><strong>{{ config.days.values() | selectattr('enabled') | list | length }}</strong></div>
+                <div class="metric-tile wide"><span>{{ 'Semester-B intake' if current_lang == 'en' else 'התחלה בסמסטר ב׳' }}</span><strong>{{ ('Enabled' if current_lang == 'en' else 'פעיל') if config.allow_semester_b_start else ('Disabled' if current_lang == 'en' else 'כבוי') }}</strong></div>
             </div>
             <a class="action-card-link" href="{{ url_for('day_adjustment_page') }}">
                 <span>
@@ -87,7 +118,21 @@
                 </span>
                 <b>→</b>
             </a>
+            <a class="action-card-link" href="{{ url_for('lecturer_availability_page') }}">
+                <span>
+                    <strong>{{ 'Lecturer working hours' if current_lang == 'en' else 'שעות פעילות מרצים' }}</strong>
+                    <small>{{ 'Manually set unavailable days and working hours for each lecturer' if current_lang == 'en' else 'הגדרה ידנית של ימים חסומים ושעות עבודה לכל מרצה' }}</small>
+                </span>
+                <b>→</b>
+            </a>
             <form method="post" action="{{ url_for('generate_timetable') }}" class="generate-form dashboard-build-form">
+                <div class="cohort-b-option dashboard-cohort-option">
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="allow_semester_b_start" {% if config.allow_semester_b_start %}checked{% endif %}>
+                        <span>{{ 'Also support students who start in semester B' if current_lang == 'en' else 'אפשר גם התחלה בסמסטר ב׳' }}</span>
+                    </label>
+                    <small>{{ 'Adds a cohort-B path one semester later. The solver shares existing cohort-A offerings whenever possible and repeats only courses that are academically necessary. One continuation semester is added at the end (for a 3-semester year: Year 4, Semester 1).' if current_lang == 'en' else 'מוסיף מחזור ב׳ שמתחיל סמסטר אחד מאוחר יותר. הפותר משתף אותו בפתיחות של מחזור א׳ ככל האפשר, ופותח קורס נוסף רק כשצריך כדי לשמור על קורסי קדם והתקדמות תקינה. נוסף סמסטר המשך אחד בסוף (במבנה של 3 סמסטרים בשנה: שנה 4, סמסטר 1).' }}</small>
+                </div>
                 <input type="hidden" name="degree_years" value="{{ config.degree_years }}">
                 <input type="hidden" name="semesters_per_year" value="{{ config.semesters_per_year }}">
                 {% for day in all_days %}
@@ -202,12 +247,15 @@
                         <label><span>{{ 'Course ID' if current_lang == 'en' else 'מספר קורס' }}</span><input type="number" name="course_id" required></label>
                         <label class="span-2"><span>{{ 'Course name' if current_lang == 'en' else 'שם הקורס' }}</span><input type="text" name="course_name" required></label>
                         <label><span>{{ 'Study year' if current_lang == 'en' else 'שנת לימודים' }}</span><input type="number" min="1" name="course_year" required></label>
+                        <label><span>{{ 'Original semester (optional)' if current_lang == 'en' else 'סמסטר מקורי (אופציונלי)' }}</span><input type="number" min="1" name="original_semester"></label>
+                        <label><span>{{ 'Flexibility' if current_lang == 'en' else 'גמישות' }}</span><select name="flexibility"><option value="auto">{{ 'Automatic' if current_lang == 'en' else 'אוטומטי' }}</option><option value="fixed">{{ 'Fixed' if current_lang == 'en' else 'קבוע' }}</option><option value="flexible">{{ 'Flexible / may be delayed for B' if current_lang == 'en' else 'גמיש / ניתן לדחות למחזור ב׳' }}</option></select></label>
                         <label class="span-2"><span>{{ 'Lecturer' if current_lang == 'en' else 'שם המרצה' }}</span><input type="text" name="lecturer" required></label>
                         <label><span>{{ 'Credits' if current_lang == 'en' else 'נקודות זכות' }}</span><input type="number" min="0.25" step="0.25" name="credits" required></label>
                         <label><span>{{ 'Weekly hours' if current_lang == 'en' else 'שעות שבועיות' }}</span><input type="number" min="0.25" step="0.25" name="weekly_hours" required></label>
                         <label><span>{{ 'Course type' if current_lang == 'en' else 'סוג שיעור' }}</span>
                             <select name="course_type" required><option value="שעור ותרגול">{{ 'Lecture + Tutorial' if current_lang == 'en' else 'הרצאה + תרגול' }}</option><option value="שעור">{{ 'Lecture only' if current_lang == 'en' else 'הרצאה בלבד' }}</option></select>
                         </label>
+                        <label><span>{{ 'Category' if current_lang == 'en' else 'קטגוריית קורס' }}</span><select name="course_category"><option value="חובה">{{ 'Core' if current_lang == 'en' else 'חובה' }}</option><option value="כללי">{{ 'General' if current_lang == 'en' else 'כללי' }}</option><option value="בחירה">{{ 'Elective' if current_lang == 'en' else 'בחירה' }}</option><option value="סמינר">{{ 'Seminar' if current_lang == 'en' else 'סמינר' }}</option><option value="פרויקט">{{ 'Project' if current_lang == 'en' else 'פרויקט' }}</option></select></label>
                         <label class="span-2"><span>{{ 'Prerequisites (optional)' if current_lang == 'en' else 'קורסי קדם (אופציונלי)' }}</span><input type="text" name="prerequisites"></label>
                         <label class="span-2"><span>{{ 'Parallel requirement (optional)' if current_lang == 'en' else 'דרישה מקבילה (אופציונלי)' }}</span><input type="text" name="parallel_requirement"></label>
                         <button class="primary-button span-2" type="submit">{{ 'Add course' if current_lang == 'en' else 'הוסף קורס' }}</button>
@@ -239,6 +287,9 @@
                             <th>{{ 'Credits' if current_lang == 'en' else 'נק״ז' }}</th>
                             <th>{{ 'Weekly hours' if current_lang == 'en' else 'ש״ש' }}</th>
                             <th>{{ 'Type' if current_lang == 'en' else 'סוג' }}</th>
+                            <th>{{ 'Category' if current_lang == 'en' else 'קטגוריה' }}</th>
+                            <th>{{ 'Original semester' if current_lang == 'en' else 'סמסטר מקורי' }}</th>
+                            <th>{{ 'Flexibility' if current_lang == 'en' else 'גמישות' }}</th>
                             <th>{{ 'Prerequisites' if current_lang == 'en' else 'קורסי קדם' }}</th>
                             <th>{{ 'Parallel requirement' if current_lang == 'en' else 'דרישה מקבילה' }}</th>
                         </tr>
@@ -253,6 +304,9 @@
                             <td>{{ course.credits }}</td>
                             <td>{{ course.weekly_hours }}</td>
                             <td>{{ course.course_type }}</td>
+                            <td><span class="course-category-badge category-{{ course.course_category }}">{{ course.course_category }}</span></td>
+                            <td>{{ course.original_semester or '—' }}</td>
+                            <td>{{ course.flexibility or 'auto' }}</td>
                             <td>{{ course.prerequisites or '—' }}</td>
                             <td>{{ course.parallel_requirement or '—' }}</td>
                         </tr>

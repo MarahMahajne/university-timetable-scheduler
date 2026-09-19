@@ -2075,3 +2075,71 @@ html[dir="rtl"] .ai-rules-column { border-left: 0; padding-left: 0; border-right
     .course-catalog-header { align-items: stretch; flex-direction: column; }
     .course-search-input { width: 100%; min-width: 0; }
 }
+
+
+/* Claude proposal: conversation stays fast; solver runs only on explicit apply. */
+.ai-proposal-card { margin-top: 16px; padding: 16px; border: 1px solid var(--border-color, #d8dee8); border-radius: 14px; background: rgba(255,255,255,.55); }
+.ai-proposal-card p { margin: 8px 0; }
+.ai-proposal-card ul { margin: 8px 0 14px; padding-inline-start: 22px; }
+.ai-proposal-card small { display:block; margin-top:10px; opacity:.75; }
+
+/* Lecturer availability editor */
+.lecturer-picker-form { margin: 1rem 0 1.4rem; }
+.lecturer-picker { max-width: 540px; }
+.lecturer-picker select { width: 100%; min-height: 44px; border: 1px solid #d7dce5; border-radius: 10px; padding: 0 .75rem; background: #fff; font: inherit; }
+.lecturer-current-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin: .5rem 0 1rem; padding: 1rem 1.1rem; border:1px solid #e3e7ef; border-radius:14px; background:#fafbfc; }
+.lecturer-current-heading div { display:flex; flex-direction:column; gap:.2rem; }
+.saved-override-badge { padding:.35rem .65rem; border-radius:999px; background:#e8f5ec; font-size:.82rem; font-weight:700; }
+.saved-override-badge.default { background:#eef1f5; }
+.lecturer-availability-row { grid-template-columns: minmax(140px, 1fr) minmax(150px, .8fr) minmax(150px, .8fr) minmax(150px, .8fr); }
+.lecturer-availability-row.department-closed { opacity:.55; }
+.department-window-note { align-self:center; color:#6c7480; white-space:nowrap; }
+.lecturer-reset-form { margin-top: .8rem; }
+@media (max-width: 780px) {
+  .lecturer-availability-row { grid-template-columns:1fr 1fr; }
+  .department-window-note { grid-column:1 / -1; }
+  .lecturer-current-heading { align-items:flex-start; flex-direction:column; }
+}
+
+
+/* Course-category colours: category is more important than lecture/tutorial type. */
+.course-card.category-חובה, .dynamic-event.category-חובה, .compact-course-card.category-חובה { background: #dbeafe; border-color: #3b82f6; }
+.course-card.category-בחירה, .dynamic-event.category-בחירה, .compact-course-card.category-בחירה { background: #dcfce7; border-color: #22c55e; }
+.course-card.category-סמינר, .dynamic-event.category-סמינר, .compact-course-card.category-סמינר { background: #fce7f3; border-color: #ec4899; }
+.course-card.category-פרויקט, .dynamic-event.category-פרויקט, .compact-course-card.category-פרויקט { background: #fef3c7; border-color: #f59e0b; }
+.course-card.category-כללי, .dynamic-event.category-כללי, .compact-course-card.category-כללי { background: #ede9fe; border-color: #8b5cf6; }
+.required-color { background:#dbeafe; border:1px solid #3b82f6; }
+.elective-color { background:#dcfce7; border:1px solid #22c55e; }
+.seminar-color { background:#fce7f3; border:1px solid #ec4899; }
+.project-color { background:#fef3c7; border:1px solid #f59e0b; }
+.general-color { background:#ede9fe; border:1px solid #8b5cf6; }
+.course-category-badge { display:inline-flex; align-items:center; padding:3px 8px; border-radius:999px; font-size:12px; font-weight:700; border:1px solid transparent; }
+.course-category-badge.category-חובה { background:#dbeafe; border-color:#93c5fd; }
+.course-category-badge.category-בחירה { background:#dcfce7; border-color:#86efac; }
+.course-category-badge.category-סמינר { background:#fce7f3; border-color:#f9a8d4; }
+.course-category-badge.category-פרויקט { background:#fef3c7; border-color:#fcd34d; }
+.course-category-badge.category-כללי { background:#ede9fe; border-color:#c4b5fd; }
+
+.cohort-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;font-size:10px;font-weight:700;background:#eef2ff;color:#334155;margin-inline-start:5px;}
+
+.dashboard-cohort-option {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border: 1px solid #dbe5f3;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+.dashboard-cohort-option .day-checkbox { display:flex; gap:9px; align-items:center; font-weight:700; }
+.dashboard-cohort-option small { display:block; margin-top:6px; line-height:1.45; color:#64748b; }
+
+
+/* V21 — overlapping lessons are displayed side-by-side rather than stacked. */
+.course-card {
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+
+.snapshot-export-bar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin: 12px 0 18px; }
+.snapshot-export-bar small { color: var(--muted, #64748b); }
+.json-export-button { white-space: nowrap; }

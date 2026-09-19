@@ -25,15 +25,22 @@
             <section class="degree-settings">
                 <div class="setting-field"><label for="degree_years">{{ 'Number of years in degree' if current_lang == 'en' else 'מספר שנות לימוד בתואר' }}</label><input id="degree_years" type="number" name="degree_years" min="1" max="10" value="{{ config.degree_years }}" required></div>
                 <div class="setting-field"><label for="semesters_per_year">{{ 'Semesters per year' if current_lang == 'en' else 'מספר סמסטרים בשנה' }}</label><input id="semesters_per_year" type="number" name="semesters_per_year" min="1" max="4" value="{{ config.semesters_per_year }}" required></div>
-                <div class="degree-total"><span>{{ 'Total semesters' if current_lang == 'en' else 'סה״כ סמסטרים' }}</span><strong id="totalSemesters">{{ config.degree_years * config.semesters_per_year }}</strong></div>
+                <div class="degree-total"><span>{{ 'Degree semesters' if current_lang == 'en' else 'סמסטרים במסלול' }}</span><strong id="totalSemesters">{{ config.degree_years * config.semesters_per_year }}</strong></div>
+                <div class="setting-field cohort-b-option">
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="allow_semester_b_start" {% if config.allow_semester_b_start %}checked{% endif %}>
+                        <span>{{ 'Also support students who start in semester B' if current_lang == 'en' else 'אפשר גם התחלה בסמסטר ב׳' }}</span>
+                    </label>
+                    <small>{{ 'When enabled, required courses are offered again for the later cohort and one continuation semester is added at the end.' if current_lang == 'en' else 'כאשר האפשרות פעילה, קורסים נפתחים שוב לפי הצורך למחזור המאוחר ונוסף סמסטר המשך אחד בסוף.' }}</small>
+                </div>
             </section>
             <h2 class="availability-title">{{ 'Department active days and hours' if current_lang == 'en' else 'ימי ושעות הפעילות של המחלקה' }}</h2>
             <div class="availability-list">
                 {% for day in all_days %}{% set values = config.days[day.key] %}
                 <div class="availability-row">
                     <label class="day-checkbox"><input type="checkbox" name="enabled_{{ day.key }}" {% if values.enabled %}checked{% endif %}><span>{{ day_label(day.key) }}</span></label>
-                    <div class="time-field"><label for="start_{{ day.key }}">{{ 'From' if current_lang == 'en' else 'מ-' }}</label><input id="start_{{ day.key }}" type="time" name="start_{{ day.key }}" value="{{ values.start }}" step="900"></div>
-                    <div class="time-field"><label for="end_{{ day.key }}">{{ 'To' if current_lang == 'en' else 'עד' }}</label><input id="end_{{ day.key }}" type="time" name="end_{{ day.key }}" value="{{ values.end }}" step="900"></div>
+                    <div class="time-field"><label for="start_{{ day.key }}">{{ 'From' if current_lang == 'en' else 'מ-' }}</label><input id="start_{{ day.key }}" type="time" name="start_{{ day.key }}" value="{{ values.start }}" step="300"></div>
+                    <div class="time-field"><label for="end_{{ day.key }}">{{ 'To' if current_lang == 'en' else 'עד' }}</label><input id="end_{{ day.key }}" type="time" name="end_{{ day.key }}" value="{{ values.end }}" step="300"></div>
                 </div>{% endfor %}
             </div>
             <div class="day-page-actions"><a class="secondary-button" href="{{ url_for('setup_page') }}">{{ 'Cancel' if current_lang == 'en' else 'ביטול' }}</a><button class="primary-button" type="submit">{{ 'Save adjustments' if current_lang == 'en' else 'שמור התאמות' }}</button></div>

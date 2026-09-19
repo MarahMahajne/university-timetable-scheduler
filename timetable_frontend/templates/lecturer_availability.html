@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ text_direction }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Lecturer Working Hours' if current_lang == 'en' else 'שעות פעילות מרצים' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
+</head>
+<body>
+<main class="setup-page day-adjustment-page">
+    <section class="setup-card day-adjustment-card">
+        <div class="setup-nav-row">
+            <a class="back-link" href="{{ url_for('setup_page') }}">← {{ 'Back to dashboard' if current_lang == 'en' else 'חזרה ללוח הניהול' }}</a>
+            <div class="lang-switcher">
+                {% for code, label in languages.items() %}<a href="{{ url_for('set_language', lang_code=code) }}" class="{{ 'active' if current_lang == code else '' }}">{{ label }}</a>{% endfor %}
+            </div>
+        </div>
+
+        <div class="setup-intro">
+            <p class="eyebrow">{{ 'LECTURER AVAILABILITY' if current_lang == 'en' else 'זמינות מרצים' }}</p>
+            <h1>{{ 'Edit lecturer working hours manually' if current_lang == 'en' else 'עריכת שעות הפעילות של מרצה ידנית' }}</h1>
+            <p class="subtitle">{{ 'These are hard constraints. A lecturer will only be scheduled inside the enabled days and hours below, and always inside the department opening hours.' if current_lang == 'en' else 'אלו אילוצים קשיחים. מרצה ישובץ רק בימים ובשעות שמסומנים כאן, ותמיד בתוך שעות הפעילות של המחלקה.' }}</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+
+        {% if lecturers %}
+        <form method="get" action="{{ url_for('lecturer_availability_page') }}" class="lecturer-picker-form">
+            <label class="setting-field lecturer-picker">
+                <span>{{ 'Choose lecturer' if current_lang == 'en' else 'בחרו מרצה' }}</span>
+                <select name="lecturer" onchange="this.form.submit()">
+                    {% for lecturer in lecturers %}<option value="{{ lecturer }}" {% if lecturer == selected_lecturer %}selected{% endif %}>{{ lecturer }}</option>{% endfor %}
+                </select>
+            </label>
+        </form>
+
+        <form method="post" action="{{ url_for('save_lecturer_availability') }}" class="setup-form">
+            <input type="hidden" name="lecturer" value="{{ selected_lecturer }}">
+            <div class="lecturer-current-heading">
+                <div><span>{{ 'Editing' if current_lang == 'en' else 'עורכים כרגע' }}</span><strong>{{ selected_lecturer }}</strong></div>
+                {% if selected_lecturer in saved_overrides %}<span class="saved-override-badge">{{ 'Custom hours active' if current_lang == 'en' else 'שעות אישיות פעילות' }}</span>{% else %}<span class="saved-override-badge default">{{ 'Using department defaults' if current_lang == 'en' else 'כרגע לפי ברירת המחדל של המחלקה' }}</span>{% endif %}
+            </div>
+
+            <div class="availability-list">
+                {% for day in all_days %}{% set values = lecturer_values[day.key] %}{% set dept = config.days[day.key] %}
+                <div class="availability-row lecturer-availability-row {{ 'department-closed' if not dept.enabled else '' }}">
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="lecturer_enabled_{{ day.key }}" {% if values.enabled and dept.enabled %}checked{% endif %} {% if not dept.enabled %}disabled{% endif %}>
+                        <span>{{ day_label(day.key) }}</span>
+                    </label>
+                    <div class="time-field"><label for="lecturer_start_{{ day.key }}">{{ 'From' if current_lang == 'en' else 'מ-' }}</label><input id="lecturer_start_{{ day.key }}" type="time" name="lecturer_start_{{ day.key }}" value="{{ values.start }}" min="{{ dept.start }}" max="{{ dept.end }}" step="300" {% if not dept.enabled %}disabled{% endif %}></div>
+                    <div class="time-field"><label for="lecturer_end_{{ day.key }}">{{ 'To' if current_lang == 'en' else 'עד' }}</label><input id="lecturer_end_{{ day.key }}" type="time" name="lecturer_end_{{ day.key }}" value="{{ values.end }}" min="{{ dept.start }}" max="{{ dept.end }}" step="300" {% if not dept.enabled %}disabled{% endif %}></div>
+                    <small class="department-window-note">{{ ('Department: ' if current_lang == 'en' else 'מחלקה: ') }}{% if dept.enabled %}{{ dept.start }}–{{ dept.end }}{% else %}{{ 'closed' if current_lang == 'en' else 'סגור' }}{% endif %}</small>
+                </div>{% endfor %}
+            </div>
+
+            <div class="day-page-actions">
+                <a class="secondary-button" href="{{ url_for('setup_page') }}">{{ 'Cancel' if current_lang == 'en' else 'ביטול' }}</a>
+                <button class="primary-button" type="submit">{{ 'Save lecturer hours' if current_lang == 'en' else 'שמור שעות מרצה' }}</button>
+            </div>
+        </form>
+
+        <form method="post" action="{{ url_for('reset_lecturer_availability') }}" class="lecturer-reset-form">
+            <input type="hidden" name="lecturer" value="{{ selected_lecturer }}">
+            <button class="text-button danger" type="submit">{{ 'Reset this lecturer to department hours' if current_lang == 'en' else 'איפוס המרצה לשעות המחלקה' }}</button>
+        </form>
+        {% else %}
+            <div class="empty-state">{{ 'No lecturers were found. Upload or add courses first.' if current_lang == 'en' else 'לא נמצאו מרצים. יש להעלות או להוסיף קורסים קודם.' }}</div>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>

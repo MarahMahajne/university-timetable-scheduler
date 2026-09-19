@@ -35,6 +35,9 @@
                 <a class="secondary-button" href="{{ url_for('setup_page') }}">
                     {{ 'Dashboard' if current_lang == 'en' else 'לוח ניהול' }}
                 </a>
+                <a class="secondary-button json-export-button" href="{{ url_for('export_system_json') }}">
+                    {{ 'Download full system JSON' if current_lang == 'en' else 'הורדת JSON של כל המערכת' }}
+                </a>
                 <div class="summary">
                     <div class="summary-card">
                         <span>{{ _('Courses') }}</span>
@@ -117,26 +120,30 @@
                     {% for event in timetable %}
                         {% if event.grid_column is defined %}
                             <article
-                                class="course-card {{ 'tutorial' if event.event_type == 'Tutorial' else 'lecture' }}"
+                                class="course-card category-{{ event.course_category }} {{ 'tutorial' if event.event_type == 'Tutorial' else 'lecture' }}"
                                 data-semester="{{ event.semester }}"
                                 data-semester-status="{{ event.semester_status }}"
                                 data-grid-span="{{ event.grid_span }}"
+                                data-start="{{ event.start }}"
+                                data-end="{{ event.end }}"
                                 style="grid-column: {{ event.grid_column }}; grid-row: {{ event.grid_row }} / span {{ event.grid_span }};"
                                 title="{{ event.name }} | {{ event.event_type_label }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }} | {{ _('Prerequisite') }}: {{ event.prerequisites or _('None') }} | {{ _('Parallel requirement') }}: {{ event.parallel_requirement or _('None') }}"
                             >
                                 <strong class="course-name">{{ event.name }}</strong>
+                                {% if config.allow_semester_b_start %}<span class="cohort-badge">{{ ('Cohort ' ~ event.cohort_label) if current_lang == 'en' else ('מחזור ' ~ event.cohort_label) }}</span>{% endif %}
 
                                 <div class="course-compact-meta">
                                     <span class="event-type">
                                         {{ event.event_type_label }}
                                     </span>
+                                    
                                     <span class="course-time">{{ event.start }}–{{ event.end }}</span>
                                 </div>
 
                                 <span class="lecturer-name">{{ event.lecturer }}</span>
 
                                 <div class="course-hover-details">
-                                    <strong>{{ event.name }}</strong>
+                                    <strong>{{ event.name }}</strong>{% if config.allow_semester_b_start %}<span class="cohort-badge">{{ ('Cohort ' ~ event.cohort_label) if current_lang == 'en' else ('מחזור ' ~ event.cohort_label) }}</span>{% endif %}
                                     <span>
                                         {{ event.event_type_label }}
                                         · {{ event.start }}–{{ event.end }}
@@ -151,9 +158,12 @@
                 </div>
             </section>
 
-            <section class="legend">
-                <span><i class="legend-color lecture-color"></i> {{ _('Lecture') }}</span>
-                <span><i class="legend-color tutorial-color"></i> {{ _('Tutorial') }}</span>
+            <section class="legend category-legend">
+                <span><i class="legend-color required-color"></i> {{ 'Required' if current_lang == 'en' else 'חובה' }}</span>
+                <span><i class="legend-color elective-color"></i> {{ 'Elective' if current_lang == 'en' else 'בחירה' }}</span>
+                <span><i class="legend-color seminar-color"></i> {{ 'Seminar' if current_lang == 'en' else 'סמינר' }}</span>
+                <span><i class="legend-color project-color"></i> {{ 'Project' if current_lang == 'en' else 'פרויקט' }}</span>
+                <span><i class="legend-color general-color"></i> {{ 'General' if current_lang == 'en' else 'כללי' }}</span>
             </section>
 
             <section class="all-semesters-view" id="allSemestersView" hidden>
@@ -214,11 +224,11 @@
                                                             <div class="dynamic-events-list">
                                                                 {% for event in day_events %}
                                                                     <article
-                                                                        class="dynamic-event {{ 'tutorial' if event.event_type == 'Tutorial' else 'lecture' }}"
+                                                                        class="dynamic-event category-{{ event.course_category }} {{ 'tutorial' if event.event_type == 'Tutorial' else 'lecture' }}"
                                                                         title="{{ event.name }} | {{ event.event_type_label }} | {{ event.start }}–{{ event.end }} | {{ event.lecturer }}"
                                                                     >
                                                                         <div class="dynamic-event-top">
-                                                                            <strong>{{ event.name }}</strong>
+                                                                            <strong>{{ event.name }}</strong>{% if config.allow_semester_b_start %}<span class="cohort-badge">{{ ('Cohort ' ~ event.cohort_label) if current_lang == 'en' else ('מחזור ' ~ event.cohort_label) }}</span>{% endif %}
                                                                             <span>{{ event.start }}–{{ event.end }}</span>
                                                                         </div>
 
@@ -259,6 +269,68 @@
         const allSemestersView = document.getElementById("allSemestersView");
         const loadingOverlay = document.getElementById("loadingOverlay");
 
+        function timeToMinutes(value) {
+            const [h, m] = value.split(":").map(Number);
+            return h * 60 + m;
+        }
+
+        // Lay overlapping events out side-by-side, Google-Calendar style.
+        // This is display-only: it does not change any solver decision.
+        function layoutOverlappingEvents() {
+            const visible = [...document.querySelectorAll(".course-card:not([hidden])")];
+            visible.forEach(card => {
+                card.style.width = "";
+                card.style.transform = "";
+                card.style.justifySelf = "";
+            });
+
+            const byColumn = new Map();
+            visible.forEach(card => {
+                const column = card.style.gridColumn || "";
+                if (!byColumn.has(column)) byColumn.set(column, []);
+                byColumn.get(column).push(card);
+            });
+
+            byColumn.forEach(cards => {
+                const events = cards.map(card => ({
+                    card,
+                    start: timeToMinutes(card.dataset.start),
+                    end: timeToMinutes(card.dataset.end),
+                    lane: 0,
+                })).sort((a, b) => a.start - b.start || a.end - b.end);
+
+                // Split into connected overlap groups.
+                let group = [];
+                let groupEnd = -1;
+                const flush = () => {
+                    if (!group.length) return;
+                    const laneEnds = [];
+                    group.forEach(ev => {
+                        let lane = laneEnds.findIndex(end => end <= ev.start);
+                        if (lane < 0) { lane = laneEnds.length; laneEnds.push(ev.end); }
+                        else laneEnds[lane] = ev.end;
+                        ev.lane = lane;
+                    });
+                    const lanes = Math.max(1, laneEnds.length);
+                    if (lanes > 1) {
+                        group.forEach(ev => {
+                            ev.card.style.justifySelf = "start";
+                            ev.card.style.width = `calc(${100 / lanes}% - 6px)`;
+                            ev.card.style.transform = `translateX(calc(${ev.lane * 100}% + ${ev.lane * 3}px))`;
+                        });
+                    }
+                    group = []; groupEnd = -1;
+                };
+
+                events.forEach(ev => {
+                    if (group.length && ev.start >= groupEnd) flush();
+                    group.push(ev);
+                    groupEnd = Math.max(groupEnd, ev.end);
+                });
+                flush();
+            });
+        }
+
         function updateSemesterView() {
             if (!semesterSelect) return;
 
@@ -275,6 +347,7 @@
                     card.hidden = card.dataset.semester !== selected;
                 }
             });
+            if (!showAll) requestAnimationFrame(layoutOverlappingEvents);
         }
 
         if (semesterSelect) {
